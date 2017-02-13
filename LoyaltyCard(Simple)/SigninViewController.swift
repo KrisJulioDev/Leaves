@@ -11,8 +11,9 @@ import Firebase
 import FBSDKLoginKit
 import TwitterKit
 import KYDrawerController
+import GoogleSignIn
 
-class SigninViewController: UIViewController {
+class SigninViewController: UIViewController, GIDSignInUIDelegate {
 
     var usersRef: FIRDatabaseReference!
     var currentUserRef: FIRDatabaseReference!
@@ -26,7 +27,8 @@ class SigninViewController: UIViewController {
     @IBOutlet weak var superViewtoCenterDistance: NSLayoutConstraint!
     @IBOutlet weak var socialSignin: UIView!
     @IBOutlet weak var signinButton: UIButton!
-
+    
+    @IBOutlet weak var gidSignInBtn: GIDSignInButton!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -36,6 +38,9 @@ class SigninViewController: UIViewController {
         // Show view button on right view of password textfiled
         password.rightView = showorhideButton
         password.rightViewMode = UITextFieldViewMode.whileEditing
+        
+        // Google Sign in
+        GIDSignIn.sharedInstance().uiDelegate = self
         
         // Hide Keyboard when tapped around
         self.hideKeyboardWhenTappedAround()
@@ -175,6 +180,9 @@ class SigninViewController: UIViewController {
 
     @IBAction func onTwitterLogin(_ sender: UIButton) {
         self.activityIndicator.startAnimating()
+        GIDSignIn.sharedInstance().signIn()
+        
+        /*
         let twitterLoginManager = Twitter.sharedInstance()
         twitterLoginManager.logIn(completion: {session, error in
             if (session != nil) {
@@ -198,8 +206,8 @@ class SigninViewController: UIViewController {
                         self.simpleAlert(message: (error?.localizedDescription)!)
                     }
                 }
-            }
-        })
+            }*
+        })*/
     }
     
     @IBAction func onFBLogin(_ sender: FBSDKLoginButton) {
@@ -324,5 +332,26 @@ extension SigninViewController : UITextFieldDelegate {
             textField.resignFirstResponder()
         }
         return true
+    }
+}
+
+extension SigninViewController {
+    func sign(_ signIn: GIDSignIn!, didSignInFor user: GIDGoogleUser!, withError error: Error?) {
+        // ...
+        if let error = error {
+            // ...
+            return
+        }
+        
+        guard let authentication = user.authentication else { return }
+        let credential = FIRGoogleAuthProvider.credential(withIDToken: authentication.idToken,
+                                                          accessToken: authentication.accessToken)
+        FIRAuth.auth()?.signIn(with: credential) { (user, error) in
+            // ...
+            if let error = error {
+                // ...
+                return
+            }
+        }
     }
 }
