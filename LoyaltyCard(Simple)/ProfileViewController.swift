@@ -51,6 +51,10 @@ class ProfileViewController: UIViewController {
         super.viewWillAppear(animated)
         
         cureentUserRefHandle = currentUserRef.observe(.value, with: { snapshot in
+            
+            
+            if snapshot.value is NSNull { return }
+            
             let userData = snapshot.value as! Dictionary<String, AnyObject>
             self.userName.text = userData["name"] as! String!
             self.fulName.text = userData["name"] as! String!

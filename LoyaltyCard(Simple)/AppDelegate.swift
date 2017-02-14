@@ -17,9 +17,10 @@ import IQKeyboardManagerSwift
 import KYDrawerController
 import Firebase
 import GoogleSignIn
+import FBSDKLoginKit
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate {
     
     var window: UIWindow?
     let locationManager = CLLocationManager()
@@ -30,18 +31,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
         // Use Firebase library to configure APIs
         FIRApp.configure()
         FIRDatabase.database().persistenceEnabled = true
+        
         let _ = RCValues.sharedInstance
         Twitter.sharedInstance().start(withConsumerKey: "I4pH4vNNFfRcfiAhCH6xDa3p1", consumerSecret: "H7KogpW7Gnalc7MtHxfCxjJ7fXXvZfUkT690Ns8oygbgETMwHD")
         Fabric.with([Twitter.self])
     }
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
-        
-//        locationManager.delegate = self
-//        locationManager.requestAlwaysAuthorization()
-        
-        // [END register_for_notifications]
         
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         
@@ -51,56 +47,60 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
         let loginVC = storyboard.instantiateViewController(withIdentifier: "SigninViewController") as! SigninViewController
         let signupVC = storyboard.instantiateViewController(withIdentifier: "SignupViewController") as! SignupViewController
         
-        if !isSignedIn {
-            do {
-                try FIRAuth.auth()?.signOut()
-            }catch {
-                
+        self.checkUserAgainstDatabase(completion: {
+            success, error in
+            
+            if success == true {
+                if !isSignedIn {
+                    do {
+                        try FIRAuth.auth()?.signOut()
+                    }catch {
+                        
+                    }
+                    self.window?.rootViewController = signupVC
+                } else if FIRAuth.auth()!.currentUser != nil {
+                    // Code to include navigation drawer
+                    let mainViewController   = storyboard.instantiateViewController(withIdentifier: "homeVC")
+                    let drawerViewController = storyboard.instantiateViewController(withIdentifier: "drawerVC")
+                    let drawerController     = KYDrawerController(drawerDirection: .left, drawerWidth: (UIScreen.main.bounds.size.width) * 0.75)
+                    drawerController.mainViewController = mainViewController
+                    drawerController.drawerViewController = drawerViewController
+                    self.window?.rootViewController = drawerController
+                } else {
+                    self.window?.rootViewController = loginVC
+                }
+            } else {
+                self.forceLogout()
             }
-            self.window?.rootViewController = signupVC
-        } else if FIRAuth.auth()!.currentUser != nil {
-            // Code to include navigation drawer
-            let mainViewController   = storyboard.instantiateViewController(withIdentifier: "homeVC")
-            let drawerViewController = storyboard.instantiateViewController(withIdentifier: "drawerVC")
-            let drawerController     = KYDrawerController(drawerDirection: .left, drawerWidth: (UIScreen.main.bounds.size.width) * 0.75)
-            drawerController.mainViewController = mainViewController
-            drawerController.drawerViewController = drawerViewController
-            self.window?.rootViewController = drawerController
-        } else {
-            self.window?.rootViewController = loginVC
-        }
+            
+        })
         
         IQKeyboardManager.sharedManager().enable = true
         
         // init google signin
         GIDSignIn.sharedInstance().clientID = FIRApp.defaultApp()?.options.clientID
-        GIDSignIn.sharedInstance().delegate = self
         
         // Facebook
         return FBSDKApplicationDelegate.sharedInstance().application(application, didFinishLaunchingWithOptions: launchOptions)
     }
     
-    func applicationWillResignActive(_ application: UIApplication) {
-        // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
-        // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
+    func checkUserAgainstDatabase(completion: @escaping (_ success: Bool, _ error: NSError?) -> Void) {
+        guard let currentUser = FIRAuth.auth()?.currentUser else { return }
+        
+        let usersRef = FIRDatabase.database().reference(withPath: "users")
+        let currentUserRef = usersRef.child(currentUser.uid)
+        currentUserRef.observe(.value, with: {
+            snapshot in
+            
+            if snapshot.value is NSNull {
+                completion(false, nil)
+            } else {
+                completion(true, nil)
+            }
+            
+        })
     }
     
-    func applicationDidEnterBackground(_ application: UIApplication) {
-        // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
-        // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
-    }
-    
-    func applicationWillEnterForeground(_ application: UIApplication) {
-        // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
-    }
-    
-    func applicationDidBecomeActive(_ application: UIApplication) {
-        // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
-    }
-    
-    func applicationWillTerminate(_ application: UIApplication) {
-        // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
-    }
     
     // Facebook Delegate
     func application(_ application: UIApplication, open url: URL, sourceApplication: String?, annotation: Any) -> Bool {
@@ -114,37 +114,36 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
                                                         annotation: [:])
     }
     
-}
-
-//MARK: Google Signin Delegate
-extension AppDelegate {
-    func sign(_ signIn: GIDSignIn!, didSignInFor user: GIDGoogleUser!, withError error: Error?) {
-        // ...
-        if let error = error {
-            // ...
-            return
+    func forceLogout() {
+        if FIRAuth.auth()!.currentUser != nil {
+            UserDefaultsManager.saveDefaults(latteStamps: 0, redeemCount: 0)
         }
-        
-        guard let authentication = user.authentication else { return }
-        let credential = FIRGoogleAuthProvider.credential(withIDToken: authentication.idToken,
-                                                          accessToken: authentication.accessToken)
-        FIRAuth.auth()?.signIn(with: credential) { (user, error) in
-            // ...
-            if let error = error {
-                // ...
-                return
+        do {
+            
+            GIDSignIn.sharedInstance().signOut()
+            
+            let store = Twitter.sharedInstance().sessionStore
+            
+            if let userID = store.session()?.userID {
+                store.logOutUserID(userID)
             }
+            
+            FBSDKLoginManager().logOut()
+            try FIRAuth.auth()!.signOut()
+            
+            
+        } catch _ as NSError {
+            
         }
         
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        if let viewController = storyboard.instantiateViewController(withIdentifier: "SigninViewController") as? SigninViewController {
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            appDelegate.window?.rootViewController = viewController
+        }
     }
-    
-    func signIn(signIn: GIDSignIn!, didDisconnectWithUser user:GIDGoogleUser!,
-                withError error: NSError!) {
-        // Perform any operations when the user disconnects from app here.
-        // ...
-    }
-}
-    /*
+
+}/*
     func handleEvent(forRegion region: CLRegion!) {
         if isUserValidForStamp() {
             let userDefaults = UserDefaults.standard

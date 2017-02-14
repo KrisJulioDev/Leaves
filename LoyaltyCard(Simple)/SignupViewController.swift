@@ -13,6 +13,7 @@ import FBSDKCoreKit
 import FBSDKLoginKit
 import Firebase
 import KYDrawerController
+import GoogleSignIn
 
 class SignupViewController: UIViewController {
     
@@ -41,6 +42,11 @@ class SignupViewController: UIViewController {
         invalidDomains = JSONParser().invalidEmails() as! [String]
         
         usersRef = FIRDatabase.database().reference(withPath: "users")
+        
+        // Google Sign in
+        GIDSignIn.sharedInstance().uiDelegate = self
+        GIDSignIn.sharedInstance().delegate = self
+
         
         // Show view button on right view of password textfiled
         password.rightView = showorhideButton
@@ -102,6 +108,17 @@ class SignupViewController: UIViewController {
                         ] as [String : Any]
                     self.currentUserRef.setValue(currentUser)
                 } else if (Twitter.sharedInstance().sessionStore.session() != nil) {
+                    let profile = user.providerData[0]
+                    let currentUser = [
+                        "name": profile.displayName ?? "",
+                        "email": profile.email ?? "",
+                        "stampCount" : 0,
+                        "redeemCount": 0,
+                        "referralCode": key.substring(to: index).uppercased(),
+                        "isReferralUsed": false,
+                        ] as [String : Any]
+                    self.currentUserRef.setValue(currentUser)
+                } else if ( GIDSignIn.sharedInstance().currentUser != nil) {
                     let profile = user.providerData[0]
                     let currentUser = [
                         "name": profile.displayName ?? "",
@@ -292,6 +309,11 @@ class SignupViewController: UIViewController {
         })
     }
     
+    @IBAction func onGmailLogin( _ send: UIButton ) {
+        self.activityIndicator.startAnimating()
+        GIDSignIn.sharedInstance().signIn()
+    }
+    
     @IBAction func onSigninButton(_ sender: UIButton) {
         view.endEditing(true)
         self.performSegue(withIdentifier: "signIn", sender: self)
@@ -420,5 +442,24 @@ extension SignupViewController : UITextFieldDelegate {
             textField.resignFirstResponder()
         }
         return true
+    }
+}
+
+extension SignupViewController: GIDSignInDelegate, GIDSignInUIDelegate  {
+    func sign(_ signIn: GIDSignIn!, didSignInFor user: GIDGoogleUser!, withError error: Error?) {
+        if let error = error {
+            self.simpleAlert(message: error.localizedDescription)
+        }
+        
+        guard let authentication = user.authentication else { return }
+        let credential = FIRGoogleAuthProvider.credential(withIDToken: authentication.idToken,
+                                                          accessToken: authentication.accessToken)
+        FIRAuth.auth()?.signIn(with: credential) { (user, error) in
+            if let error = error {
+                self.simpleAlert(message: error.localizedDescription)
+            } else if let usr = user {
+                self.pushUsertoFirebase(user: usr)
+            }
+        }
     }
 }

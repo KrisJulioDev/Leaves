@@ -12,6 +12,7 @@ import TwitterKit
 import FBSDKLoginKit
 import KYDrawerController
 import MapKit
+import GoogleSignIn
 
 class DrawerViewController: UIViewController {
     
@@ -29,6 +30,9 @@ class DrawerViewController: UIViewController {
         super.viewWillAppear(animated)
         
         currentUserRef.observeSingleEvent(of: .value, with: { snapshot in
+
+            if snapshot.value is NSNull { return }
+
             let userData = snapshot.value as! Dictionary<String, AnyObject>
             self.userName.text = userData["name"] as! String!
             if let imageURL = userData["photoURL"] {
@@ -87,13 +91,19 @@ class DrawerViewController: UIViewController {
             UserDefaultsManager.saveDefaults(latteStamps: 0, redeemCount: 0)
         }
         do {
+            
+            GIDSignIn.sharedInstance().signOut()
+            
             let store = Twitter.sharedInstance().sessionStore
             
             if let userID = store.session()?.userID {
                 store.logOutUserID(userID)
             }
+            
             FBSDKLoginManager().logOut()
             try FIRAuth.auth()!.signOut()
+            
+            
         } catch let error as NSError {
             self.simpleAlert(message: error.localizedDescription)
         }

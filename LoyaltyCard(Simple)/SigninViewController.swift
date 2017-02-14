@@ -13,7 +13,7 @@ import TwitterKit
 import KYDrawerController
 import GoogleSignIn
 
-class SigninViewController: UIViewController, GIDSignInUIDelegate {
+class SigninViewController: UIViewController, GIDSignInUIDelegate, GIDSignInDelegate {
 
     var usersRef: FIRDatabaseReference!
     var currentUserRef: FIRDatabaseReference!
@@ -28,8 +28,6 @@ class SigninViewController: UIViewController, GIDSignInUIDelegate {
     @IBOutlet weak var socialSignin: UIView!
     @IBOutlet weak var signinButton: UIButton!
     
-    @IBOutlet weak var gidSignInBtn: GIDSignInButton!
-    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -41,6 +39,7 @@ class SigninViewController: UIViewController, GIDSignInUIDelegate {
         
         // Google Sign in
         GIDSignIn.sharedInstance().uiDelegate = self
+        GIDSignIn.sharedInstance().delegate = self
         
         // Hide Keyboard when tapped around
         self.hideKeyboardWhenTappedAround()
@@ -97,6 +96,18 @@ class SigninViewController: UIViewController, GIDSignInUIDelegate {
                         "stampCount" : 0,
                         "redeemCount": 0,
                         "referralCode": key.substring(to: index).uppercased(),
+                        "isReferralUsed": false,
+                        ] as [String : Any]
+                    self.currentUserRef.setValue(currentUser)
+                } else if ( GIDSignIn.sharedInstance().currentUser != nil) {
+                    let profile = user.providerData[0]
+                    let currentUser = [
+                        "name": profile.displayName ?? "",
+                        "email": profile.email ?? "",
+                        "stampCount" : 0,
+                        "redeemCount": 0,
+                        "referralCode": key.substring(to: index).uppercased(),
+                        "photoURL": "\(profile.photoURL!)",
                         "isReferralUsed": false,
                         ] as [String : Any]
                     self.currentUserRef.setValue(currentUser)
@@ -181,33 +192,11 @@ class SigninViewController: UIViewController, GIDSignInUIDelegate {
     @IBAction func onTwitterLogin(_ sender: UIButton) {
         self.activityIndicator.startAnimating()
         GIDSignIn.sharedInstance().signIn()
-        
-        /*
-        let twitterLoginManager = Twitter.sharedInstance()
-        twitterLoginManager.logIn(completion: {session, error in
-            if (session != nil) {
-                let authToken = session?.authToken
-                let authTokenSecret = session?.authTokenSecret
-                let credential = FIRTwitterAuthProvider.credential(withToken: authToken!, secret: authTokenSecret!)
-                FIRAuth.auth()?.signIn(with: credential) { (user, error) in
-                    if error != nil {
-                        self.activityIndicator.stopAnimating()
-                        self.simpleAlert(message: (error?.localizedDescription)!)
-                    } else {
-                        DispatchQueue.main.async {
-                            self.activityIndicator.stopAnimating()
-                        }
-                    }
-                }
-            } else {
-                if error != nil {
-                    DispatchQueue.main.async {
-                        self.activityIndicator.stopAnimating()
-                        self.simpleAlert(message: (error?.localizedDescription)!)
-                    }
-                }
-            }*
-        })*/
+    }
+    
+    @IBAction func onGmailLogin( _ send: UIButton ) {
+        self.activityIndicator.startAnimating()
+        GIDSignIn.sharedInstance().signIn()
     }
     
     @IBAction func onFBLogin(_ sender: FBSDKLoginButton) {
@@ -337,20 +326,18 @@ extension SigninViewController : UITextFieldDelegate {
 
 extension SigninViewController {
     func sign(_ signIn: GIDSignIn!, didSignInFor user: GIDGoogleUser!, withError error: Error?) {
-        // ...
         if let error = error {
-            // ...
-            return
+            self.simpleAlert(message: error.localizedDescription)
         }
         
         guard let authentication = user.authentication else { return }
         let credential = FIRGoogleAuthProvider.credential(withIDToken: authentication.idToken,
                                                           accessToken: authentication.accessToken)
         FIRAuth.auth()?.signIn(with: credential) { (user, error) in
-            // ...
             if let error = error {
-                // ...
-                return
+                self.simpleAlert(message: error.localizedDescription)
+            } else if let usr = user {
+                self.pushUsertoFirebase(user: usr)
             }
         }
     }
