@@ -90,7 +90,7 @@ class QRCodeReaderDelegate: NSObject, QRCodeReaderViewControllerDelegate {
                                             "stampCount": verificationCode.stamps,
                                             "time": dateString
                                             ] as [String : Any]
-                                        self.userRef.child("/allStamps").childByAutoId().setValue(stampData)
+                                        //self.userRef.child("/allStamps").childByAutoId().setValue(stampData)
                                     }
                                     DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(verificationCode.stamps/2), execute: {
                                         self.controller.giveFreeStamptoUser()

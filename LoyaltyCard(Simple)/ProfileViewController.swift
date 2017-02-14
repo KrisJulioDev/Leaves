@@ -32,6 +32,8 @@ class ProfileViewController: UIViewController {
     var userUID: String!
     var group: BEMCheckBoxGroup!
     
+    var unixBday: Double?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -52,14 +54,21 @@ class ProfileViewController: UIViewController {
         
         cureentUserRefHandle = currentUserRef.observe(.value, with: { snapshot in
             
-            
             if snapshot.value is NSNull { return }
             
             let userData = snapshot.value as! Dictionary<String, AnyObject>
             self.userName.text = userData["name"] as! String!
             self.fulName.text = userData["name"] as! String!
             self.email.text = userData["email"] as? String ?? ""
-            self.birthday.text = userData["birthday"] as? String ?? ""
+            
+            let bdayFormatter = DateFormatter()
+            bdayFormatter.dateStyle = .medium
+            
+            let birthday = userData["birthDay"] as? Double ?? 0
+            if birthday > 0 {
+                self.birthday.text = bdayFormatter.string(from: Date(timeIntervalSince1970: birthday))
+            }
+            
             if let gender = userData["gender"] {
                 if gender as! String == "male" {
                     self.group.selectedCheckBox = self.isMale
@@ -74,7 +83,7 @@ class ProfileViewController: UIViewController {
                 self.isMale.on = userData["gender"] as? Bool ?? false
                 self.isFemale.on = userData["isFemale"] as? Bool ?? false
             }
-            if let imageURL = userData["photoURL"] {
+            if let imageURL = userData["photoURL"], imageURL as? String != "" {
                 if !self.isImageChanged {
                     let url = URL(string: imageURL as! String)
                     self.profileImage?.kf.setImage(with: url)
@@ -117,6 +126,7 @@ class ProfileViewController: UIViewController {
     }
     
     func uploadImage() {
+        
         // Get NSData from image
         let presentImageRef = self.imageStorageRef.child("profilePic.jpeg")
         let uploadData = UIImageJPEGRepresentation(self.profileImage.image!, 0.2)
@@ -149,8 +159,9 @@ class ProfileViewController: UIViewController {
     func updateUserInfo() {
         self.currentUserRef.child("name").setValue(self.fulName.text)
         self.currentUserRef.child("email").setValue(self.email.text)
-        if self.birthday.text != "" {
-            self.currentUserRef.child("birthday").setValue(self.birthday.text)
+        
+        if self.unixBday != nil {
+            self.currentUserRef.child("birthDay").setValue(self.unixBday)
         }
         if self.isMale.on {
             self.currentUserRef.child("gender").setValue("male")
@@ -199,6 +210,8 @@ class ProfileViewController: UIViewController {
                 let formatter = DateFormatter()
                 formatter.dateStyle = .medium
                 self.birthday.text = formatter.string(from: date)
+            
+                self.unixBday = date.timeIntervalSince1970
             }
         }
     }

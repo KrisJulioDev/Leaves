@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "A01A816975428F49466274C508B4BECD"
+               BlueprintIdentifier = "EF18132627B9F56245E68721D8FE0F9E"
                BuildableName = "Pods_LoyaltyCard_Simple_.framework"
                BlueprintName = "Pods-LoyaltyCard(Simple)"
                ReferencedContainer = "container:Pods.xcodeproj">
@@ -45,7 +45,7 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "A01A816975428F49466274C508B4BECD"
+            BlueprintIdentifier = "EF18132627B9F56245E68721D8FE0F9E"
             BuildableName = "Pods_LoyaltyCard_Simple_.framework"
             BlueprintName = "Pods-LoyaltyCard(Simple)"
             ReferencedContainer = "container:Pods.xcodeproj">

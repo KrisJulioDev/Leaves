@@ -31,9 +31,21 @@
 		<dict>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string></string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>com.googleusercontent.apps.774307085086-hcd627qg0emmh7bhbcn58e3a23bvl81a</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.JasonMcCoy.7LeavesCard</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>7leaves</string>
 			</array>
 		</dict>
 	</array>

@@ -10,12 +10,11 @@ import Foundation
 import ObjectMapper
 
 class Team: Mappable {
-    var name: String!
-    var stampCount: Int?
-    var redeemCount: Int?
-    var photoURL: String?
-    var isFreeStampGiven: Bool!
-    var key: String!
+    var name: String = ""
+    var stampCount: Int = 0
+    var redeemCount: Int = 0
+    var photoURL: String = ""
+    var key: String = ""
     
     required init?(map: Map) {
     }
@@ -24,7 +23,6 @@ class Team: Mappable {
         name <- map["name"]
         stampCount <- map["stampCount"]
         redeemCount <- map["redeemCount"]
-        photoURL <- map["photoURL"]
-        isFreeStampGiven <- map["isFreeStampGiven"]
+        photoURL <- map["photoURL"] 
     }
 }

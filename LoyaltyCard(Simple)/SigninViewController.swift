@@ -27,6 +27,7 @@ class SigninViewController: UIViewController, GIDSignInUIDelegate, GIDSignInDele
     @IBOutlet weak var superViewtoCenterDistance: NSLayoutConstraint!
     @IBOutlet weak var socialSignin: UIView!
     @IBOutlet weak var signinButton: UIButton!
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -56,7 +57,7 @@ class SigninViewController: UIViewController, GIDSignInUIDelegate, GIDSignInDele
         
         FIRAuth.auth()?.addStateDidChangeListener { auth, user in
             if let user = user {
-                if user.isEmailVerified || (FBSDKAccessToken.current() != nil) || (Twitter.sharedInstance().sessionStore.session() != nil) {
+                if user.isEmailVerified || (FBSDKAccessToken.current() != nil) || (Twitter.sharedInstance().sessionStore.session() != nil) || ( GIDSignIn.sharedInstance().currentUser != nil ) {
                     
                     //Push User into firebase schema
                     self.pushUsertoFirebase(user: user)
@@ -79,46 +80,56 @@ class SigninViewController: UIViewController, GIDSignInUIDelegate, GIDSignInDele
                 if (FBSDKAccessToken.current() != nil) {
                     let profile = user.providerData[0]
                     let currentUser = [
+                        "key": key,
                         "name": profile.displayName ?? "",
                         "email": profile.email ?? "",
+                        "photoURL": (profile.photoURL == nil ? "" : "\(profile.photoURL!)"),
+                        "gender": "",
+                        "birthDay":0,
+                        "referralCode": key.substring(to: index).uppercased(),
                         "stampCount" : 0,
                         "redeemCount": 0,
-                        "photoURL": "\(profile.photoURL!)",
-                        "referralCode": key.substring(to: index).uppercased(),
-                        "isReferralUsed": false,
-                    ] as [String : Any]
+                        ] as [String : Any]
                     self.currentUserRef.setValue(currentUser)
                 } else if (Twitter.sharedInstance().sessionStore.session() != nil) {
                     let profile = user.providerData[0]
                     let currentUser = [
+                        "key": key,
                         "name": profile.displayName ?? "",
                         "email": profile.email ?? "",
+                        "photoURL": (profile.photoURL == nil ? "" : "\(profile.photoURL!)"),
+                        "gender": "",
+                        "birthDay":0,
+                        "referralCode": key.substring(to: index).uppercased(),
                         "stampCount" : 0,
                         "redeemCount": 0,
-                        "referralCode": key.substring(to: index).uppercased(),
-                        "isReferralUsed": false,
                         ] as [String : Any]
                     self.currentUserRef.setValue(currentUser)
-                } else if ( GIDSignIn.sharedInstance().currentUser != nil) {
+                }  else if ( GIDSignIn.sharedInstance().currentUser != nil) {
                     let profile = user.providerData[0]
                     let currentUser = [
+                        "key": key,
                         "name": profile.displayName ?? "",
                         "email": profile.email ?? "",
+                        "photoURL": (profile.photoURL == nil ? "" : "\(profile.photoURL!)"),
+                        "gender": "",
+                        "birthDay":0,
+                        "referralCode": key.substring(to: index).uppercased(),
                         "stampCount" : 0,
                         "redeemCount": 0,
-                        "referralCode": key.substring(to: index).uppercased(),
-                        "photoURL": "\(profile.photoURL!)",
-                        "isReferralUsed": false,
                         ] as [String : Any]
                     self.currentUserRef.setValue(currentUser)
                 } else {
                     let currentUser = [
-                        "name": user.displayName!,
-                        "email": user.email!,
-                        "stampCount": 0,
-                        "redeemCount": 0,
+                        "key": key,
+                        "name": user.displayName ?? "",
+                        "email": user.email ?? "",
+                        "photoURL": (user.photoURL == nil ? "" : "\(user.photoURL!)"),
+                        "gender": "",
+                        "birthDay":0,
                         "referralCode": key.substring(to: index).uppercased(),
-                        "isReferralUsed": false,
+                        "stampCount" : 0,
+                        "redeemCount": 0,
                     ] as [String : Any]
                     self.currentUserRef.setValue(currentUser)
                 }
@@ -191,7 +202,35 @@ class SigninViewController: UIViewController, GIDSignInUIDelegate, GIDSignInDele
 
     @IBAction func onTwitterLogin(_ sender: UIButton) {
         self.activityIndicator.startAnimating()
-        GIDSignIn.sharedInstance().signIn()
+        let twitterLoginManager = Twitter.sharedInstance()
+        twitterLoginManager.logIn(completion: {session, error in
+            if (session != nil) {
+                let authToken = session?.authToken
+                let authTokenSecret = session?.authTokenSecret
+                let credential = FIRTwitterAuthProvider.credential(withToken: authToken!, secret: authTokenSecret!)
+                
+                FIRAuth.auth()?.signIn(with: credential) { (user, error) in
+                    if error != nil {
+                        
+                        self.activityIndicator.stopAnimating()
+                        self.simpleAlert(message: (error?.localizedDescription)!)
+                        
+                    } else {
+                        
+                        DispatchQueue.main.async {
+                            self.activityIndicator.stopAnimating()
+                        }
+                    }
+                }
+            } else {
+                if error != nil {
+                    DispatchQueue.main.async {
+                        self.activityIndicator.stopAnimating()
+                        self.simpleAlert(message: (error?.localizedDescription)!)
+                    }
+                }
+            }
+        })
     }
     
     @IBAction func onGmailLogin( _ send: UIButton ) {
@@ -202,7 +241,8 @@ class SigninViewController: UIViewController, GIDSignInUIDelegate, GIDSignInDele
     @IBAction func onFBLogin(_ sender: FBSDKLoginButton) {
         self.activityIndicator.startAnimating()
         let fbLoginManager = FBSDKLoginManager()
-        fbLoginManager.logIn(withReadPermissions: ["public_profile", "email"/*, "user_friends"*/], from: self) { (result, error) -> Void in
+        
+        fbLoginManager.logIn(withReadPermissions: ["public_profile", "email"], from: self) { (result, error) -> Void in
             if(error != nil) {
                 fbLoginManager.logOut()
                 DispatchQueue.main.async {
@@ -231,6 +271,7 @@ class SigninViewController: UIViewController, GIDSignInUIDelegate, GIDSignInDele
             }
         }
     }
+    
     
     func emailValidation() -> Bool {
         if email.text == "" {

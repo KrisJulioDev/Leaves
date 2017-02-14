@@ -17,11 +17,11 @@ class EachTeamMemberTableViewCell: UITableViewCell {
     var friend: Team! {
         didSet {
             if (friend.photoURL != nil) {
-                setImage(imageURL: friend.photoURL!)
+                setImage(imageURL: friend.photoURL)
             }
             self.name.text = friend.name
             if (friend.redeemCount != nil) {
-                if friend.redeemCount! >= 1 {
+                if friend.redeemCount >= 1 {
                     self.redeemedText.isHidden = false
                 }
             }

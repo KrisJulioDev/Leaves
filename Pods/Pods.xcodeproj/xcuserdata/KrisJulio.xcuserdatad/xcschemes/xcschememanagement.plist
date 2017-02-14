@@ -4,6 +4,11 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
+		<key>Alamofire.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>BEMCheckBox.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -89,9 +94,19 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
+		<key>SwiftyJSON.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
+		<key>05D9FA4CB5191E7F11AB872807EBD778</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>1520003FEBEC114D6C84F832AFEDB994</key>
 		<dict>
 			<key>primary</key>
@@ -132,12 +147,12 @@
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>7D04535608058A2FABC0D16935868FB9</key>
+		<key>79C040AFDDCE1BCBF6D8B5EB0B85887F</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>84F15187E1D3E941C9CCB9D2868B6000</key>
+		<key>7D04535608058A2FABC0D16935868FB9</key>
 		<dict>
 			<key>primary</key>
 			<true/>
@@ -147,17 +162,7 @@
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>9A321B7911CE57788B0DDEC9F5714D80</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
 		<key>9D0F2E5EA1B46A5D72FFD42B0B39DBBC</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
-		<key>A01A816975428F49466274C508B4BECD</key>
 		<dict>
 			<key>primary</key>
 			<true/>
@@ -173,6 +178,21 @@
 			<true/>
 		</dict>
 		<key>E30CA1A9FD95C1FF06C2A8847196943B</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>E47E5392E0A2576D5E8DF24D8382F356</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>EF18132627B9F56245E68721D8FE0F9E</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>F4852070841DE05110F462ABA0A9C2C1</key>
 		<dict>
 			<key>primary</key>
 			<true/>

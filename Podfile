@@ -23,6 +23,9 @@ target 'LoyaltyCard(Simple)' do
     pod 'DatePickerDialog'
     pod 'DZNEmptyDataSet'
     pod 'RadioButton'
+    pod 'Alamofire', '~> 4.3'
+    pod 'SwiftyJSON'
+    pod 'Firebase/DynamicLinks'
 end
 
 post_install do |installer|

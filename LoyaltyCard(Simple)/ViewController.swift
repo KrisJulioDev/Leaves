@@ -176,6 +176,29 @@ class ViewController: UIViewController {
         } else {
             updateUserStamps()
         }
+        
+    }
+    
+    func fetchTeamStamps() {
+        for team in self.teams {
+            let ref = FIRDatabase.database().reference(withPath: "users/\(team.key)")
+            ref.observe(.value, with: {
+                snapshot in
+                
+                if snapshot.value is NSNull {
+                    
+                } else {
+                    if let dict = snapshot.value as? NSDictionary {
+                        
+                        team.stampCount = dict["stampCount"] as! Int
+                        team.redeemCount = dict["redeemCount"] as! Int
+                        
+                        self.updateTeamInfo(key: team.key, team: team)
+                    }
+                }
+                
+            })
+        }
     }
     
     // MARK: Actions
@@ -250,6 +273,8 @@ class ViewController: UIViewController {
                 }
                 self.checkTeamRedeemCount(teams: self.teams)
             }
+            
+            self.fetchTeamStamps()
         })
     }
     
@@ -265,11 +290,6 @@ class ViewController: UIViewController {
                         self.latteStamps = (stampCount as? Int)!
                         self.redeemCount = (lJson["redeemCount"] as? Int)!
                     }
-                    if let referralID = lJson["referralID"] {
-                        self.referralID = (referralID as? String)!
-                        self.photoURL = lJson["photoURL"] as? String
-                        self.updateInfoInReferral(referralID: self.referralID!)
-                    }
                     self.updateUIOfMine(animated: false)
                     UserDefaultsManager.saveDefaults(latteStamps: self.latteStamps, redeemCount: self.redeemCount)
                 }
@@ -279,36 +299,27 @@ class ViewController: UIViewController {
         }
     }
     
-    func updateInfoInReferral(referralID: String) {
-        let ref = FIRDatabase.database().reference(withPath: "users/\(referralID)/teams/\(FIRAuth.auth()!.currentUser!.uid)")
-        ref.child("stampCount").setValue(self.latteStamps)
-        ref.child("redeemCount").setValue(self.redeemCount)
-        if (self.photoURL != nil) {
-            ref.child("photoURL").setValue(self.photoURL)
-        }
+    func updateTeamInfo(key: String, team: Team) {
+        let ref = FIRDatabase.database().reference(withPath: "users/\(FIRAuth.auth()!.currentUser!.uid)/teams/\(key)")
+        ref.child("stampCount").setValue(team.stampCount)
+        ref.child("redeemCount").setValue(team.redeemCount)
     }
     
     func checkTeamRedeemCount(teams: [Team]) {
         for each in teams {
-            if !each.isFreeStampGiven {
-                if each.redeemCount != nil {
-                    if each.redeemCount! >= 1 {
-                        Alert.show(controller: self, title: "", message: "Congrats! You got free stamp, beacuse your friend \(each.name!) successsfully redeemed 10 stamps.", action: {
-                            let ref = FIRDatabase.database().reference(withPath: "users/\(FIRAuth.auth()!.currentUser!.uid)/teams/\(each.key!)")
-                            ref.child("isFreeStampGiven").setValue(true)
-                            self.latteStamps += 1
-                            self.updateUIOfMine()
-                            UserDefaultsManager.saveDefaults(latteStamps: self.latteStamps, redeemCount: self.redeemCount)
-                            if FIRAuth.auth()!.currentUser != nil {
-                                self.userRef = FIRDatabase.database().reference(withPath: "users/\(FIRAuth.auth()!.currentUser!.uid)")
-                                self.userRef.child("/stampCount").setValue(self.latteStamps)
-                            }
-                            self.changeUIDoneEdit(state: false)
-                            self.isAuthorized = false
-                            self.redeemStarsLblTxt.isHidden = true
-                        })
+            if each.redeemCount >= 12 {
+                Alert.show(controller: self, title: "", message: "Congrats! You got free stamp, because your friend \(each.name) successsfully redeemed 10 stamps.", action: {
+                    self.latteStamps += 1
+                    self.updateUIOfMine()
+                    UserDefaultsManager.saveDefaults(latteStamps: self.latteStamps, redeemCount: self.redeemCount)
+                    if FIRAuth.auth()!.currentUser != nil {
+                        self.userRef = FIRDatabase.database().reference(withPath: "users/\(FIRAuth.auth()!.currentUser!.uid)")
+                        self.userRef.child("/stampCount").setValue(self.latteStamps)
                     }
-                }
+                    self.changeUIDoneEdit(state: false)
+                    self.isAuthorized = false
+                    self.redeemStarsLblTxt.isHidden = true
+                })
             }
         }
     }
@@ -459,6 +470,9 @@ class ViewController: UIViewController {
     }
     
     func hasNearestStore() -> Bool {
+        
+        // debug - remove
+        return true
         
         guard let long = self.currentLongitude, let lat = self.currentLatitude
         else { return false }

@@ -30,12 +30,11 @@ class DrawerViewController: UIViewController {
         super.viewWillAppear(animated)
         
         currentUserRef.observeSingleEvent(of: .value, with: { snapshot in
-
             if snapshot.value is NSNull { return }
 
             let userData = snapshot.value as! Dictionary<String, AnyObject>
             self.userName.text = userData["name"] as! String!
-            if let imageURL = userData["photoURL"] {
+            if let imageURL = userData["photoURL"], imageURL as? String != "" {
                 let url = URL(string: imageURL as! String)
                 self.profileImage?.kf.setImage(with: url)
                 self.profileImage?.makeCircular(color: UIColor.white)
@@ -91,7 +90,6 @@ class DrawerViewController: UIViewController {
             UserDefaultsManager.saveDefaults(latteStamps: 0, redeemCount: 0)
         }
         do {
-            
             GIDSignIn.sharedInstance().signOut()
             
             let store = Twitter.sharedInstance().sessionStore
@@ -100,10 +98,11 @@ class DrawerViewController: UIViewController {
                 store.logOutUserID(userID)
             }
             
+            FBSDKProfile.setCurrent(nil)
+            FBSDKAccessToken.setCurrent(nil)
+            
             FBSDKLoginManager().logOut()
             try FIRAuth.auth()!.signOut()
-            
-            
         } catch let error as NSError {
             self.simpleAlert(message: error.localizedDescription)
         }

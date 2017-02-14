@@ -35,6 +35,7 @@
 		1BE92E061CB1C121009284A0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1BE92E051CB1C121009284A0 /* Assets.xcassets */; };
 		1BE92E091CB1C121009284A0 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1BE92E071CB1C121009284A0 /* LaunchScreen.storyboard */; };
 		1DFB0B641E3A3B3600F87026 /* StampButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DFB0B631E3A3B3600F87026 /* StampButton.swift */; };
+		351A316D1E532F5600D93954 /* RemoteConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 351A316C1E532F5500D93954 /* RemoteConfig.swift */; };
 		3557BA931E4D441B00D2C631 /* email_invalid.json in Resources */ = {isa = PBXBuildFile; fileRef = 3557BA921E4D441B00D2C631 /* email_invalid.json */; };
 		357B85351E4D745F0064C1EC /* NearestStoreViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 357B85341E4D745F0064C1EC /* NearestStoreViewController.swift */; };
 		357B85371E4D8A080064C1EC /* FeedbackViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 357B85361E4D8A080064C1EC /* FeedbackViewController.swift */; };
@@ -79,6 +80,7 @@
 		1DFB0B631E3A3B3600F87026 /* StampButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StampButton.swift; sourceTree = "<group>"; };
 		22D07EC56A444CF4B7C917DA /* Pods_LoyaltyCard_Simple_.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_LoyaltyCard_Simple_.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		2E50201E1E2D80B8D7BCB426 /* Pods-LoyaltyCard(Simple).release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LoyaltyCard(Simple).release.xcconfig"; path = "Pods/Target Support Files/Pods-LoyaltyCard(Simple)/Pods-LoyaltyCard(Simple).release.xcconfig"; sourceTree = "<group>"; };
+		351A316C1E532F5500D93954 /* RemoteConfig.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RemoteConfig.swift; sourceTree = "<group>"; };
 		3557BA921E4D441B00D2C631 /* email_invalid.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = email_invalid.json; sourceTree = "<group>"; };
 		357B85341E4D745F0064C1EC /* NearestStoreViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NearestStoreViewController.swift; sourceTree = "<group>"; };
 		357B85361E4D8A080064C1EC /* FeedbackViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedbackViewController.swift; sourceTree = "<group>"; };
@@ -171,6 +173,7 @@
 		1BE92DFD1CB1C121009284A0 /* LoyaltyCard(Simple) */ = {
 			isa = PBXGroup;
 			children = (
+				351A316B1E532F4800D93954 /* Config */,
 				0243D0AD1E40A9E400DA7456 /* 7Leaves Card.entitlements */,
 				1DFB0B621E3A3B1C00F87026 /* Views */,
 				1379AB2D1E38C1A7001E866C /* Alert */,
@@ -227,6 +230,14 @@
 				22D07EC56A444CF4B7C917DA /* Pods_LoyaltyCard_Simple_.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		351A316B1E532F4800D93954 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				351A316C1E532F5500D93954 /* RemoteConfig.swift */,
+			);
+			name = Config;
 			sourceTree = "<group>";
 		};
 		6A6C837BE852D38382EF027C /* Pods */ = {
@@ -301,6 +312,9 @@
 								enabled = 0;
 							};
 							com.apple.Push = {
+								enabled = 0;
+							};
+							com.apple.SafariKeychain = {
 								enabled = 0;
 							};
 						};
@@ -410,6 +424,7 @@
 				0243D0AA1E3F997400DA7456 /* SignupViewController.swift in Sources */,
 				021167131E472801001AA682 /* EachTeamMemberTableViewCell.swift in Sources */,
 				0211670B1E45F31F001AA682 /* RedeemViewController.swift in Sources */,
+				351A316D1E532F5600D93954 /* RemoteConfig.swift in Sources */,
 				021167111E471596001AA682 /* TeamMembersTableViewController.swift in Sources */,
 				1379AB331E38C20B001E866C /* Constants.swift in Sources */,
 				1DFB0B641E3A3B3600F87026 /* StampButton.swift in Sources */,

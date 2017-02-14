@@ -17,7 +17,6 @@ class RedeemViewController: UIViewController {
     var currentUserRef: FIRDatabaseReference!
     var usersRef: FIRDatabaseReference!
     var selfCode: String!
-    var isReferralUsed = true
     var isVerificationSuccess = false
     var userName: String!
     var photoURL: String?
@@ -33,9 +32,10 @@ class RedeemViewController: UIViewController {
         super.viewWillAppear(animated)
         
         currentUserRef.observeSingleEvent(of: .value, with: { snapshot in
+            if snapshot.value is NSNull { return }
+
             let userData = snapshot.value as! Dictionary<String, AnyObject>
-            self.selfCode = userData["referralCode"] as! String!
-            self.isReferralUsed = userData["isReferralUsed"] as! Bool!
+            self.selfCode = userData["referralCode"] as! String! 
             self.userName = userData["name"] as! String!
             if let profileURL = userData["photoURL"] {
                 self.photoURL = profileURL as? String
@@ -63,9 +63,6 @@ class RedeemViewController: UIViewController {
         } else if selfCode == redeemCode.text! {
             self.activityIndicator.stopAnimating()
             self.simpleAlert(message: "You cannot use your own referral code.")
-        } else if isReferralUsed {
-            self.activityIndicator.stopAnimating()
-            self.simpleAlert(message: "You have exceeded the redeem limit.")
         } else {
             self.isCodeAvailableInFirebase()
         }
@@ -78,10 +75,8 @@ class RedeemViewController: UIViewController {
                 self.activityIndicator.stopAnimating()
                 self.isVerificationSuccess = true
                 ViewController.sharedInstance.isReferralUsed = true
-                self.currentUserRef.child("isReferralUsed").setValue(true)
                 for item in data.children {
                     let item = item as! FIRDataSnapshot
-                    self.currentUserRef.child("referralID").setValue(item.key)
                     self.addIntoTeam(ownerId: item.key)
                 }
                 self.simpleAlert(message: "Congrats! You got one free stamp")
@@ -118,7 +113,8 @@ class RedeemViewController: UIViewController {
         let ownerRef = FIRDatabase.database().reference(withPath: "users/\(ownerId)")
         let data = [
             "name": self.userName!,
-            "isFreeStampGiven": false
+            "redeemCount": 0,
+            "stampCount": 0,
         ] as [String : Any]
         ownerRef.child("teams/\(FIRAuth.auth()!.currentUser!.uid)").setValue(data)
         if (self.photoURL != nil) {
