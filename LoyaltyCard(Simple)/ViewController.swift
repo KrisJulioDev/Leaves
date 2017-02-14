@@ -471,9 +471,6 @@ class ViewController: UIViewController {
     
     func hasNearestStore() -> Bool {
         
-        // debug - remove
-        return true
-        
         guard let long = self.currentLongitude, let lat = self.currentLatitude
         else { return false }
         
@@ -490,7 +487,6 @@ class ViewController: UIViewController {
                 StoreManager.storeLocations.append(storeLocation)
             }
             
-            debugPrint("Distance: \(distance) radius \(radius)")
             if distance <= radius {
                 return true
             }
