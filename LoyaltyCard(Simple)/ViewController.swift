@@ -181,6 +181,11 @@ class ViewController: UIViewController {
         
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        self.redeemSavedCode()
+    }
+    
     func fetchTeamStamps(team: Team) {
         
         let ref = FIRDatabase.database().reference(withPath: "users/\(team.key)")
@@ -209,6 +214,17 @@ class ViewController: UIViewController {
                 }
                 
             })
+    }
+    
+    // MARK: Deeplink handler
+    func redeemSavedCode() {
+        let saveCode = UserDefaults.standard.value(forKey: SHARE_CODE_KEY)
+        guard let _ = saveCode else { return }
+        
+        if let drawerController = self.parent as? KYDrawerController {
+            drawerController.setDrawerState(.closed, animated: true)
+            drawerController.performSegue(withIdentifier: "redeem", sender: self)
+        }
     }
     
     // MARK: Actions
@@ -504,7 +520,7 @@ class ViewController: UIViewController {
             else { return false }
         
         let userCoordinates = CLLocation.init(latitude: lat, longitude: long)
-  
+        
         for each in self.stores {
             let storeLocation = CLLocation.init(latitude: each.lat, longitude: each.lan)
             let distance = storeLocation.distance(from: userCoordinates)

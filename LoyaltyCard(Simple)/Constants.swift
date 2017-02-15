@@ -8,6 +8,7 @@
 
 import Foundation
 
+let SHARE_CODE_KEY = "share_code_key"
 
 var verificationCodeArray: [VerificationCode] = []
 

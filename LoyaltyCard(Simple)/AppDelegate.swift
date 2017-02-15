@@ -24,13 +24,14 @@ import FirebaseDynamicLinks
 class AppDelegate: UIResponder, UIApplicationDelegate {
     
     var window: UIWindow?
+    let customURLScheme = "7leaves"
     let locationManager = CLLocationManager()
     
     override init() {
         super.init()
         
         // Use Firebase library to configure APIs
-        FIROptions.default().deepLinkURLScheme = "7leaves"
+        FIROptions.default().deepLinkURLScheme = customURLScheme
         FIRApp.configure()
         FIRDatabase.database().persistenceEnabled = true
         RemoteConfig().initialize()
@@ -117,15 +118,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     // Facebook Delegate
     func application(_ application: UIApplication, open url: URL, sourceApplication: String?, annotation: Any) -> Bool {
-       
-        let dynamicLink = FIRDynamicLinks.dynamicLinks()?.dynamicLink(fromCustomSchemeURL: url)
-        if let _ = dynamicLink {
-            // Handle the deep link. For example, show the deep-linked content or
-            // apply a promotional offer to the user's account.
-            // ...
-            return true
-        }
- 
+        
         return FBSDKApplicationDelegate.sharedInstance().application(application, open: url as URL!, sourceApplication: sourceApplication, annotation: annotation) || GIDSignIn.sharedInstance().handle(url, sourceApplication: sourceApplication, annotation: annotation)
     }
     
@@ -166,6 +159,28 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     }
     
+    func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([Any]?) -> Void) -> Bool {
+        guard let dynamicLinks = FIRDynamicLinks.dynamicLinks() else {
+            return false
+        }
+        let handled = dynamicLinks.handleUniversalLink(userActivity.webpageURL!) { (dynamiclink, error) in
+            
+            let splitlinks = dynamiclink?.url?.absoluteString.components(separatedBy: "/")
+            if let link = splitlinks, link.count >= 3 {
+                let shareCodeValue = link[3].components(separatedBy: "=")
+                if shareCodeValue.count >= 2 {
+                    let code = shareCodeValue[1]
+                    debugPrint("code is ", code)
+                    UserDefaults.standard.setValue(code, forKey: SHARE_CODE_KEY)
+                }
+            }
+            
+        }
+        
+        
+        return handled
+    }
+ 
 }/*
  func handleEvent(forRegion region: CLRegion!) {
  if isUserValidForStamp() {

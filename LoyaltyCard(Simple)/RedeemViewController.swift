@@ -42,6 +42,20 @@ class RedeemViewController: UIViewController {
             }
         })
     }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        let saveCode = UserDefaults.standard.value(forKey: SHARE_CODE_KEY)
+        if  let code = saveCode, code is String {
+            self.redeemCode.text = code as? String
+            self.activityIndicator.startAnimating()
+            self.isReferralValid()
+            
+            //set to nil to prevent referring again
+            UserDefaults.standard.setValue(nil, forKey: SHARE_CODE_KEY)
+        }
+    }
 
     @IBAction func onClose(_ sender: UIBarButtonItem) {
         self.dismiss(animated: true, completion: nil)
@@ -85,28 +99,7 @@ class RedeemViewController: UIViewController {
                 self.simpleAlert(message: "Invalid Code")
             }
         }
-        /*
-        usersRef.queryOrdered(byChild: "referralCode").queryEqual(toValue: self.redeemCode.text!).observe(.childAdded, with: { snapshot in
-            print("inside snapshot")
-            if (snapshot.value as? NSDictionary) != nil {
-                if snapshot.exists() {
-                    self.activityIndicator.stopAnimating()
-                    self.isVerificationSuccess = true
-                    ViewController.sharedInstance.isReferralUsed = true
-                    self.currentUserRef.child("isReferralUsed").setValue(true)
-                    self.currentUserRef.child("referralID").setValue(snapshot.key)
-                    self.addIntoTeam(ownerId: snapshot.key)
-                    self.simpleAlert(message: "Congrats! You got one free stamp")
-                } else {
-                    self.activityIndicator.stopAnimating()
-                    self.simpleAlert(message: "Invalid Code")
-                }
-            } else {
-                self.activityIndicator.stopAnimating()
-                self.simpleAlert(message: "Invalid Code")
-            }
-        })
-         */
+        
     }
     
     func addIntoTeam(ownerId: String) {

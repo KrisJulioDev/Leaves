@@ -15,6 +15,7 @@ class ReferViewController: UIViewController {
 
     var message:String!
     var appLink:NSURL!
+    var deeplink:String?
     
     @IBOutlet weak var referralCode: UITextView!
     var currentUserRef: FIRDatabaseReference!
@@ -22,27 +23,8 @@ class ReferViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let postURL = "https://firebasedynamiclinks.googleapis.com/v1/shortLinks?key=AIzaSyAzvEyYL3f-KV72HhbsEcpm2Ex3gqyw_I8"
-        let firebaseDomain  = "https://jf27z.app.goo.gl"
-        let domain = "com.jasonmccoy.a7leavescardx"
-        
-        let param = ["longDynamicLink": "\(firebaseDomain)/?link=http://7leavescafe.com/app_share_code?redeem_code=\(self.referralCode.text!)/method/link&apn=\(domain)&amv=31&al=7leaves://redeem_code/\((self.referralCode.text!))"]
-        
-        Alamofire.request(postURL, method: .post, parameters: param, encoding: JSONEncoding.default, headers: [:]).responseString { response in
-            
-            if let data = response.data {
-                let responseString = JSON(data: data)
-                let rS = responseString["shortLink"].string ?? "invalid link"
-                debugPrint(rS)
-            }
-        }
-
-        
-        
-//        http://7leavescafe.com/app_share_code?redeem_code=4ED81BDE
         
         currentUserRef = FIRDatabase.database().reference(withPath: "users/\(FIRAuth.auth()!.currentUser!.uid)")
-        //self.appLink = NSURL(string: "https://jf27z.app.goo.gl/Tbeh")
         self.appLink = NSURL(string: "http://7leavescafe.com/app_share_code?redeem_code=\(self.referralCode.text!)")
     }
     
@@ -50,12 +32,34 @@ class ReferViewController: UIViewController {
         super.viewWillAppear(animated)
         
         currentUserRef.observeSingleEvent(of: .value, with: { snapshot in
-            if snapshot.value is NSNull { return }
- 
             let userData = snapshot.value as! Dictionary<String, AnyObject>
             self.referralCode.text = userData["referralCode"] as! String!
             self.message = "Download 7Leaves Card App, go to Redeem Code & enter \(self.referralCode.text!) to get a FREE stamp. Get it here: "
+            
+            self.requestForDeeplink()
         })
+    }
+
+    func requestForDeeplink() {
+        let postURL = "https://firebasedynamiclinks.googleapis.com/v1/shortLinks?key=AIzaSyAzvEyYL3f-KV72HhbsEcpm2Ex3gqyw_I8"
+        let firebaseDomain  = "https://jf27z.app.goo.gl"
+        let code = self.referralCode.text ?? ""
+        
+        let parameters = ["longDynamicLink": "\(firebaseDomain)/?link=http://7leavescafe.com/app_share_code=\(code)&apn=com.jasonmccoy.a7leavescardx&isi=1187702945&ibi=com.JasonMcCoy.7LeavesCard&al=7leaves://app_share_code=\(code)&st=Get+free+stamp&sd=Get+a+free+stamp+when+using+this+code!&si=https://firebasestorage.googleapis.com/v0/b/leaves-cafe.appspot.com/o/selectedStar%25402x.png?alt%3Dmedia%26token%3D61ffb2ee-a866-40ba-a1a2-57fa9cc2c852"
+        ]
+        
+        Alamofire.request(postURL, method: .post, parameters: parameters, encoding: JSONEncoding.default, headers: [:])
+            .responseString(completionHandler: {
+                response in
+                
+                if let data = response.data {
+                    let responseString = JSON(data: data)
+                    let dL = responseString["shortLink"].string ?? "invalid link"
+                    self.deeplink = dL
+                    debugPrint(self.deeplink ?? "")
+                }
+            })
+
     }
     
     @IBAction func onClose(_ sender: UIBarButtonItem) {
@@ -63,7 +67,17 @@ class ReferViewController: UIViewController {
     }
     
     @IBAction func onRefer(_ sender: UIButton) {
-        let activityVC = UIActivityViewController(activityItems: [self.message, self.appLink!], applicationActivities: nil)
+        
+        var activityItems = [Any]()
+        activityItems.append(self.message)
+        
+        if self.deeplink == nil {
+            activityItems.append(self.appLink!)
+        } else {
+            activityItems.append(self.deeplink ?? "")
+        }
+        
+        let activityVC = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
         activityVC.popoverPresentationController?.sourceView = self.view
         self.present(activityVC, animated: true, completion: nil)
         activityVC.completionWithItemsHandler = { activity, success, items, error in
