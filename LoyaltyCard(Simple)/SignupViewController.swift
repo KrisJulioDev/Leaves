@@ -35,6 +35,7 @@ class SignupViewController: UIViewController {
     @IBOutlet weak var signupButton: UIButton!
     
     var invalidDomains = [String]()
+    var alreadyPushed = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -57,6 +58,21 @@ class SignupViewController: UIViewController {
         self.hideKeyboardWhenTappedAround()
         
         self.signupButton.layer.borderColor = UIColor.white.cgColor
+        
+        
+        
+        FIRAuth.auth()?.addStateDidChangeListener { auth, user in
+            if let user = user {
+                if user.isEmailVerified || (FBSDKAccessToken.current() != nil) || (Twitter.sharedInstance().sessionStore.session() != nil) || ( GIDSignIn.sharedInstance().currentUser != nil ) {
+                    
+                    guard self.alreadyPushed == false else { return }
+                    
+                    //Push User into firebase schema
+                    self.alreadyPushed = true
+                    self.pushUsertoFirebase(user: user)
+                }
+            }
+        }
     }
     
     override func viewDidLayoutSubviews() {
@@ -76,16 +92,6 @@ class SignupViewController: UIViewController {
          NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: .UIKeyboardWillShow, object: nil)
          NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: .UIKeyboardWillHide, object: nil)
          */
-        
-        FIRAuth.auth()?.addStateDidChangeListener { auth, user in
-            if let user = user {
-                if user.isEmailVerified || (FBSDKAccessToken.current() != nil) || (Twitter.sharedInstance().sessionStore.session() != nil) || ( GIDSignIn.sharedInstance().currentUser != nil ) {
-                    
-                    //Push User into firebase schema
-                    self.pushUsertoFirebase(user: user)
-                }
-            }
-        }
     }
     
     func pushUsertoFirebase(user: FIRUser) {
@@ -152,6 +158,7 @@ class SignupViewController: UIViewController {
                 }
             }
         })
+        
         DispatchQueue.main.async {
             // Code to include navigation drawer
             let mainViewController   = self.storyboard?.instantiateViewController(withIdentifier: "homeVC")
@@ -468,8 +475,6 @@ extension SignupViewController: GIDSignInDelegate, GIDSignInUIDelegate  {
         FIRAuth.auth()?.signIn(with: credential) { (user, error) in
             if let error = error {
                 self.simpleAlert(message: error.localizedDescription)
-            } else if let usr = user {
-                self.pushUsertoFirebase(user: usr)
             }
         }
     }

@@ -65,8 +65,9 @@ class ViewController: UIViewController {
     static var sharedInstance: ViewController! = nil
     
     var locationManager = CLLocationManager()
-    
     // MARK: - Controller Methods
+    
+    let allTeamHandler = 111
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -129,12 +130,13 @@ class ViewController: UIViewController {
             self.locationManager.desiredAccuracy = kCLLocationAccuracyBest
             self.locationManager.startUpdatingLocation()
         })
+        
+        getAllTeams()
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        getAllTeams()
         
         self.locationManager.delegate = self
         self.locationManager.desiredAccuracy = kCLLocationAccuracyBest
@@ -179,10 +181,10 @@ class ViewController: UIViewController {
         
     }
     
-    func fetchTeamStamps() {
-        for team in self.teams {
-            let ref = FIRDatabase.database().reference(withPath: "users/\(team.key)")
-            ref.observe(.value, with: {
+    func fetchTeamStamps(team: Team) {
+        
+        let ref = FIRDatabase.database().reference(withPath: "users/\(team.key)")
+        ref.observe(.value, with: {
                 snapshot in
                 
                 if snapshot.value is NSNull {
@@ -190,15 +192,23 @@ class ViewController: UIViewController {
                 } else {
                     if let dict = snapshot.value as? NSDictionary {
                         
-                        team.stampCount = dict["stampCount"] as! Int
-                        team.redeemCount = dict["redeemCount"] as! Int
+                        let teamLatestStamp = dict["stampCount"] as! Int
+                        let teamLatestRedeem = dict["redeemCount"] as! Int
+                        
+                        team.stampCount = teamLatestStamp
+                        
+                        let balance = teamLatestRedeem - team.redeemCount
+                        team.redeemCount = teamLatestRedeem
+                        
+                        if balance > 0 {
+                            self.updateRedeemCountFromteam(key: team.key, team: team, balance: balance)
+                        }
                         
                         self.updateTeamInfo(key: team.key, team: team)
                     }
                 }
                 
             })
-        }
     }
     
     // MARK: Actions
@@ -256,25 +266,28 @@ class ViewController: UIViewController {
                     self.stores.append(eachStore!)
                 }
             }
-            
         })
     }
     
     func getAllTeams() {
         // Get all Team Information
+        
         teamsRef.observe(.value, with: { snapshot in
-            self.teams = []
             for item in snapshot.children {
                 let item = item as! FIRDataSnapshot
                 if let lJson = item.value as? [String : AnyObject] {
                     let eachTeam = Mapper<Team>().map(JSON: lJson)
                     eachTeam?.key = item.key
+                    
+                    let isExisting = self.teams.filter({ $0.key == eachTeam?.key }).count > 0
+                    guard isExisting == false else { continue }
+                    
                     self.teams.append(eachTeam!)
+                    self.fetchTeamStamps(team: eachTeam!)
                 }
-                self.checkTeamRedeemCount(teams: self.teams)
+                //self.checkTeamRedeemCount(teams: self.teams)
             }
             
-            self.fetchTeamStamps()
         })
     }
     
@@ -307,7 +320,7 @@ class ViewController: UIViewController {
     
     func checkTeamRedeemCount(teams: [Team]) {
         for each in teams {
-            if each.redeemCount >= 12 {
+            if each.redeemCount >= 1 {
                 Alert.show(controller: self, title: "", message: "Congrats! You got free stamp, because your friend \(each.name) successsfully redeemed 10 stamps.", action: {
                     self.latteStamps += 1
                     self.updateUIOfMine()
@@ -322,6 +335,22 @@ class ViewController: UIViewController {
                 })
             }
         }
+    }
+    
+    func updateRedeemCountFromteam(key: String, team: Team, balance: Int) {
+        
+        Alert.show(controller: self, title: "", message: "Congrats! You got free stamp, because your friend \(team.name) successsfully redeemed 10 stamps.", action: {
+            self.latteStamps += balance
+            self.updateUIOfMine()
+            UserDefaultsManager.saveDefaults(latteStamps: self.latteStamps, redeemCount: self.redeemCount)
+            if FIRAuth.auth()!.currentUser != nil {
+                self.userRef = FIRDatabase.database().reference(withPath: "users/\(FIRAuth.auth()!.currentUser!.uid)")
+                self.userRef.child("/stampCount").setValue(self.latteStamps)
+            }
+            self.changeUIDoneEdit(state: false)
+            self.isAuthorized = false
+            self.redeemStarsLblTxt.isHidden = true
+        })
     }
     
     // MARK: - Button Methods
@@ -472,7 +501,7 @@ class ViewController: UIViewController {
     func hasNearestStore() -> Bool {
         
         guard let long = self.currentLongitude, let lat = self.currentLatitude
-        else { return false }
+            else { return false }
         
         let userCoordinates = CLLocation.init(latitude: lat, longitude: long)
   

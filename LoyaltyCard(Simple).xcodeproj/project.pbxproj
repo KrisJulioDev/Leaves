@@ -301,7 +301,7 @@
 				TargetAttributes = {
 					1BE92DFA1CB1C121009284A0 = {
 						CreatedOnToolsVersion = 7.3;
-						DevelopmentTeam = VS9A4QWTAC;
+						DevelopmentTeam = KC6J7YD8JQ;
 						LastSwiftMigration = 0800;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
@@ -556,7 +556,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer: gosulayaswanth2@gmail.com (V69LML2JQZ)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				DEVELOPMENT_TEAM = VS9A4QWTAC;
+				DEVELOPMENT_TEAM = KC6J7YD8JQ;
 				INFOPLIST_FILE = "LoyaltyCard(Simple)/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -576,7 +576,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				DEVELOPMENT_TEAM = VS9A4QWTAC;
+				DEVELOPMENT_TEAM = KC6J7YD8JQ;
 				INFOPLIST_FILE = "LoyaltyCard(Simple)/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";

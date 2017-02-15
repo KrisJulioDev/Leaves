@@ -2,12 +2,11 @@
   "images" : [
     {
       "idiom" : "universal",
-      "filename" : "tier2full copy.png",
+      "filename" : "facebook.png",
       "scale" : "1x"
     },
     {
       "idiom" : "universal",
-      "filename" : "tier2full.png",
       "scale" : "2x"
     },
     {

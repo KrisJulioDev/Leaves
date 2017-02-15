@@ -46,14 +46,6 @@ class SigninViewController: UIViewController, GIDSignInUIDelegate, GIDSignInDele
         self.hideKeyboardWhenTappedAround()
         
         self.signinButton.layer.borderColor = UIColor.white.cgColor
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        
-        // Keyboard Notification
-        //NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: .UIKeyboardWillShow, object: nil)
-        //NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: .UIKeyboardWillHide, object: nil)
         
         FIRAuth.auth()?.addStateDidChangeListener { auth, user in
             if let user = user {
@@ -65,6 +57,7 @@ class SigninViewController: UIViewController, GIDSignInUIDelegate, GIDSignInDele
             }
         }
     }
+    
 
     override func viewDidLayoutSubviews() {
         email.underlined(color: UIColor.white, width: 1.0)
@@ -371,15 +364,14 @@ extension SigninViewController {
             self.simpleAlert(message: error.localizedDescription)
         }
         
+        guard user != nil else { return }
         guard let authentication = user.authentication else { return }
         let credential = FIRGoogleAuthProvider.credential(withIDToken: authentication.idToken,
                                                           accessToken: authentication.accessToken)
         FIRAuth.auth()?.signIn(with: credential) { (user, error) in
             if let error = error {
                 self.simpleAlert(message: error.localizedDescription)
-            } else if let usr = user {
-                self.pushUsertoFirebase(user: usr)
-            }
+            }  
         }
     }
 }

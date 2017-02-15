@@ -42,6 +42,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         
+        IQKeyboardManager.sharedManager().enable = true
+        
+        // init google signin
+        GIDSignIn.sharedInstance().clientID = FIRApp.defaultApp()?.options.clientID
+        
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         
         // if uninstalled logout the user
@@ -50,12 +55,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let loginVC = storyboard.instantiateViewController(withIdentifier: "SigninViewController") as! SigninViewController
         let signupVC = storyboard.instantiateViewController(withIdentifier: "SignupViewController") as! SignupViewController
         
+        self.window = UIWindow(frame: UIScreen.main.bounds)
+        self.window?.makeKeyAndVisible()
+        
+        // Code to include navigation drawer
+        let mainViewController   = storyboard.instantiateViewController(withIdentifier: "homeVC")
+        let drawerViewController = storyboard.instantiateViewController(withIdentifier: "drawerVC")
+        let drawerController     = KYDrawerController(drawerDirection: .left, drawerWidth: (UIScreen.main.bounds.size.width) * 0.75)
+       
         
         if !isSignedIn {
             do {
                 try FIRAuth.auth()?.signOut()
             }catch {
-                
+                self.window?.rootViewController = loginVC
             }
             self.window?.rootViewController = signupVC
         } else if FIRAuth.auth()!.currentUser != nil {
@@ -64,16 +77,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 success, error in
                 
                 if success == true {
-                    
-                    // Code to include navigation drawer
-                    let mainViewController   = storyboard.instantiateViewController(withIdentifier: "homeVC")
-                    let drawerViewController = storyboard.instantiateViewController(withIdentifier: "drawerVC")
-                    let drawerController     = KYDrawerController(drawerDirection: .left, drawerWidth: (UIScreen.main.bounds.size.width) * 0.75)
                     drawerController.mainViewController = mainViewController
                     drawerController.drawerViewController = drawerViewController
                     self.window?.rootViewController = drawerController
-                    
                 } else {
+                    self.window?.rootViewController = loginVC
                     self.forceLogout()
                 }
                 
@@ -82,13 +90,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         } else {
             self.window?.rootViewController = loginVC
         }
- 
-        
-        
-        IQKeyboardManager.sharedManager().enable = true
-        
-        // init google signin
-        GIDSignIn.sharedInstance().clientID = FIRApp.defaultApp()?.options.clientID
+
+        self.window?.rootViewController = loginVC
         
         // Facebook
         return FBSDKApplicationDelegate.sharedInstance().application(application, didFinishLaunchingWithOptions: launchOptions)
@@ -116,7 +119,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, open url: URL, sourceApplication: String?, annotation: Any) -> Bool {
        
         let dynamicLink = FIRDynamicLinks.dynamicLinks()?.dynamicLink(fromCustomSchemeURL: url)
-        if let dynamicLink = dynamicLink {
+        if let _ = dynamicLink {
             // Handle the deep link. For example, show the deep-linked content or
             // apply a promotional offer to the user's account.
             // ...
