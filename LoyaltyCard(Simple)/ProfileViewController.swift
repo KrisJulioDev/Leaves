@@ -12,7 +12,7 @@ import BEMCheckBox
 import DatePickerDialog
 
 class ProfileViewController: UIViewController {
-
+    
     @IBOutlet weak var updateButton: UIButton!
     @IBOutlet weak var profileImage: UIImageView!
     
@@ -30,13 +30,11 @@ class ProfileViewController: UIViewController {
     var imageStorageRef: FIRStorageReference!
     var storageRef: FIRStorageReference!
     var userUID: String!
-    var group: BEMCheckBoxGroup!
-    
-    var unixBday: Double?
+    var group: BEMCheckBoxGroup! 
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         self.currentUserRef = FIRDatabase.database().reference(withPath: "users/\(FIRAuth.auth()!.currentUser!.uid)")
         self.userUID = FIRAuth.auth()!.currentUser!.uid
         self.storageRef = FIRStorage.storage().reference(forURL: "gs://leaves-cafe.appspot.com")
@@ -46,7 +44,11 @@ class ProfileViewController: UIViewController {
         self.group = BEMCheckBoxGroup(checkBoxes: [self.isFemale, self.isMale])
         self.group.mustHaveSelection = true
         self.group.selectedCheckBox = nil
+        
         group.selectedCheckBox = self.isMale
+        self.isFemale.delegate = self
+        self.isMale.delegate = self
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -60,24 +62,20 @@ class ProfileViewController: UIViewController {
             self.userName.text = userData["name"] as! String!
             self.fulName.text = userData["name"] as! String!
             self.email.text = userData["email"] as? String ?? ""
-            
-            let bdayFormatter = DateFormatter()
-            bdayFormatter.dateStyle = .medium
-            
-            let birthday = userData["birthDay"] as? Double ?? 0
-            if birthday > 0 {
-                self.birthday.text = bdayFormatter.string(from: Date(timeIntervalSince1970: birthday))
-            }
+            self.birthday.text = userData["birthDay"] as? String ?? ""
             
             if let gender = userData["gender"] {
                 if gender as! String == "male" {
                     self.group.selectedCheckBox = self.isMale
                     self.isMale.setOn(true, animated: true)
                     self.isMale.reload()
-                } else {
+                } else if gender as! String == "female" {
                     self.group.selectedCheckBox = self.isFemale
                     self.isFemale.setOn(true, animated: true)
                     self.isFemale.reload()
+                } else {
+                    self.isMale.on = userData["gender"] as? Bool ?? false
+                    self.isFemale.on = userData["isFemale"] as? Bool ?? false
                 }
             } else {
                 self.isMale.on = userData["gender"] as? Bool ?? false
@@ -91,6 +89,7 @@ class ProfileViewController: UIViewController {
                 }
             }
         })
+        
     }
     
     override func viewDidLayoutSubviews() {
@@ -98,7 +97,7 @@ class ProfileViewController: UIViewController {
         fulName.underlined(color: UIColor.lightGray, width: 1.0)
         birthday.underlined(color: UIColor.lightGray, width: 1.0)
     }
-
+    
     
     @IBAction func onChangeImage(_ sender: UIButton) {
         let picker = UIImagePickerController()
@@ -159,9 +158,9 @@ class ProfileViewController: UIViewController {
     func updateUserInfo() {
         self.currentUserRef.child("name").setValue(self.fulName.text)
         self.currentUserRef.child("email").setValue(self.email.text)
-        
-        if self.unixBday != nil {
-            self.currentUserRef.child("birthDay").setValue(self.unixBday)
+        if self.birthday.text != "" {
+            UserNotificationManager.setBirthdayNotification(birthday: self.birthday.text!)
+            self.currentUserRef.child("birthDay").setValue(self.birthday.text)
         }
         if self.isMale.on {
             self.currentUserRef.child("gender").setValue("male")
@@ -203,15 +202,17 @@ class ProfileViewController: UIViewController {
     }
     
     @IBAction func datePickerTapped(sender: AnyObject) {
+        if self.birthday.text! != "" || (self.birthday.text?.characters.count) != 0 { return }
+      
         self.enableUpdateButton()
         DatePickerDialog().show(title: "Birthday", doneButtonTitle: "Done", cancelButtonTitle: "Cancel", maximumDate: Date(), datePickerMode: .date) {
             (date) -> Void in
             if let date = date {
+                
                 let formatter = DateFormatter()
                 formatter.dateStyle = .medium
+                formatter.dateFormat = "MMM dd, yyyy"
                 self.birthday.text = formatter.string(from: date)
-            
-                self.unixBday = date.timeIntervalSince1970
             }
         }
     }
@@ -229,9 +230,9 @@ class ProfileViewController: UIViewController {
     }
     
     func disableUpdateButton() {
-    self.updateButton.isEnabled = false
-    self.updateButton.setTitleColor(UIColor.lightGray, for: .normal)
-    self.updateButton.backgroundColor = UIColor.white
+        self.updateButton.isEnabled = false
+        self.updateButton.setTitleColor(UIColor.lightGray, for: .normal)
+        self.updateButton.backgroundColor = UIColor.white
     }
     
     func simpleAlert(message: String) {
@@ -244,6 +245,7 @@ class ProfileViewController: UIViewController {
         
         present(alert, animated: true, completion: nil)
     }
+    
 }
 
 extension ProfileViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
@@ -273,4 +275,9 @@ extension ProfileViewController: BEMCheckBoxDelegate {
         print("animaiton did stop")
         self.enableUpdateButton()
     }
+    func didTap(_ checkBox: BEMCheckBox) {
+        enableUpdateButton()
+    }
 }
+
+ 

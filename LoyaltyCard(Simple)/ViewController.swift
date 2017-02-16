@@ -77,7 +77,7 @@ class ViewController: UIViewController {
         ViewController.sharedInstance = self;
         self.storesRef = FIRDatabase.database().reference(withPath: "stores")
         self.teamsRef = FIRDatabase.database().reference(withPath: "users/\(FIRAuth.auth()!.currentUser!.uid)/teams")
-        
+
         let (savedLatteStamps, savedRedeemCount) = UserDefaultsManager.loadDefaults()
         latteStamps = savedLatteStamps
         redeemCount = savedRedeemCount
@@ -89,14 +89,14 @@ class ViewController: UIViewController {
         }
         
         let deviceType = UIDevice.current.deviceType
-     
-        switch deviceType {
         
+        switch deviceType {
+            
         case .iPhone5:
             stackViewTopConstraint.constant = 140.0
             redeemView.constant = 10.0;
             self.view.layoutIfNeeded()
-        
+            
         case .iPhone5C:
             stackViewTopConstraint.constant = 140.0
             redeemView.constant = 10.0;
@@ -113,9 +113,9 @@ class ViewController: UIViewController {
             self.view.layoutIfNeeded()
             
         default: print("Check other available cases of DeviceType")
-           
+            
         }
-    
+        
         self.view.setNeedsLayout()
         
         let userDefaults = UserDefaults.standard
@@ -132,7 +132,21 @@ class ViewController: UIViewController {
         })
         
         getAllTeams()
+        self.addFreeStampForBirthday()
         
+        
+        // Add LocalNotification
+        self.userRef = FIRDatabase.database().reference(withPath: "users/\(FIRAuth.auth()!.currentUser!.uid)")
+
+        self.userRef.observeSingleEvent(of: .value, with: { snapshot in
+            
+            if snapshot.value is NSNull { return }
+            let userData = snapshot.value as! Dictionary<String, AnyObject>
+
+            let bday = userData["birthDay"] as? String ?? ""
+            UserNotificationManager.setBirthdayNotification(birthday: bday)
+            
+        })
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -171,6 +185,7 @@ class ViewController: UIViewController {
             if FIRAuth.auth()!.currentUser != nil {
                 self.userRef = FIRDatabase.database().reference(withPath: "users/\(FIRAuth.auth()!.currentUser!.uid)")
                 self.userRef.child("/stampCount").setValue(self.latteStamps)
+                
             }
             self.changeUIDoneEdit(state: false)
             self.isAuthorized = false
@@ -183,47 +198,51 @@ class ViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        self.redeemSavedCode()
+        redeemSavedCode()
     }
     
     func fetchTeamStamps(team: Team) {
         
         let ref = FIRDatabase.database().reference(withPath: "users/\(team.key)")
         ref.observe(.value, with: {
-                snapshot in
+            snapshot in
+            
+            if snapshot.value is NSNull {
                 
-                if snapshot.value is NSNull {
+            } else {
+                if let dict = snapshot.value as? NSDictionary {
                     
-                } else {
-                    if let dict = snapshot.value as? NSDictionary {
-                        
-                        let teamLatestStamp = dict["stampCount"] as! Int
-                        let teamLatestRedeem = dict["redeemCount"] as! Int
-                        
-                        team.stampCount = teamLatestStamp
-                        
-                        let balance = teamLatestRedeem - team.redeemCount
-                        team.redeemCount = teamLatestRedeem
-                        
-                        if balance > 0 {
-                            self.updateRedeemCountFromteam(key: team.key, team: team, balance: balance)
-                        }
-                        
-                        self.updateTeamInfo(key: team.key, team: team)
+                    let teamLatestStamp = dict["stampCount"] as! Int
+                    let teamLatestRedeem = dict["redeemCount"] as! Int
+                    
+                    team.stampCount = teamLatestStamp
+                    
+                    let balance = teamLatestRedeem - team.redeemCount
+                    team.redeemCount = teamLatestRedeem
+                    
+                    if balance > 0 {
+                        self.updateRedeemCountFromteam(key: team.key, team: team, balance: balance)
                     }
+                    
+                    self.updateTeamInfo(key: team.key, team: team)
                 }
-                
-            })
+            }
+            
+        })
     }
     
     // MARK: Deeplink handler
     func redeemSavedCode() {
+        
         let saveCode = UserDefaults.standard.value(forKey: SHARE_CODE_KEY)
         guard let _ = saveCode else { return }
         
+        UserDefaultsManager.savedCode = saveCode as! String?
+        UserDefaults.standard.setValue(nil, forKey: SHARE_CODE_KEY)
+        
         if let drawerController = self.parent as? KYDrawerController {
             drawerController.setDrawerState(.closed, animated: true)
-            drawerController.performSegue(withIdentifier: "redeem", sender: self)
+            drawerController.drawerViewController?.performSegue(withIdentifier: "redeem", sender: self)
         }
     }
     
@@ -369,6 +388,24 @@ class ViewController: UIViewController {
         })
     }
     
+    func addFreeStampForBirthday() {
+        
+        if UserDefaults.standard.bool(forKey: BIRTHDAY_FREE_STAMP_KEY) == true {
+            UserDefaults.standard.setValue(false, forKey: BIRTHDAY_FREE_STAMP_KEY)
+            
+            self.latteStamps += 1
+            self.updateUIOfMine()
+            UserDefaultsManager.saveDefaults(latteStamps: self.latteStamps, redeemCount: self.redeemCount)
+            if FIRAuth.auth()!.currentUser != nil {
+                self.userRef = FIRDatabase.database().reference(withPath: "users/\(FIRAuth.auth()!.currentUser!.uid)")
+                self.userRef.child("/stampCount").setValue(self.latteStamps)
+            }
+            self.changeUIDoneEdit(state: false)
+            self.isAuthorized = false
+            self.redeemStarsLblTxt.isHidden = true
+        }
+    }
+    
     // MARK: - Button Methods
     
     // Called when stamp card is pressed
@@ -420,8 +457,8 @@ class ViewController: UIViewController {
             self.redeemOutlet.isHidden = false
             
             if #available(iOS 10.3, *) {
-               // SKStoreReviewController.requestReview()
-               //SKStoreReviewController.requestReview()
+                // SKStoreReviewController.requestReview()
+                //SKStoreReviewController.requestReview()
                 print("request review");
             } else {
                 // Fallback on earlier versions

@@ -10,7 +10,7 @@ import UIKit
 import Firebase
 
 class RedeemViewController: UIViewController {
-
+    
     @IBOutlet weak var redeemCode: UITextField!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
@@ -23,7 +23,7 @@ class RedeemViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         currentUserRef = FIRDatabase.database().reference(withPath: "users/\(FIRAuth.auth()!.currentUser!.uid)")
         usersRef = FIRDatabase.database().reference(withPath: "users")
     }
@@ -33,9 +33,9 @@ class RedeemViewController: UIViewController {
         
         currentUserRef.observeSingleEvent(of: .value, with: { snapshot in
             if snapshot.value is NSNull { return }
-
+            
             let userData = snapshot.value as! Dictionary<String, AnyObject>
-            self.selfCode = userData["referralCode"] as! String! 
+            self.selfCode = userData["referralCode"] as! String!
             self.userName = userData["name"] as! String!
             if let profileURL = userData["photoURL"] {
                 self.photoURL = profileURL as? String
@@ -46,21 +46,21 @@ class RedeemViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        let saveCode = UserDefaults.standard.value(forKey: SHARE_CODE_KEY)
+        let saveCode = UserDefaultsManager.savedCode
         if  let code = saveCode, code is String {
             self.redeemCode.text = code as? String
             self.activityIndicator.startAnimating()
             self.isReferralValid()
             
             //set to nil to prevent referring again
-            UserDefaults.standard.setValue(nil, forKey: SHARE_CODE_KEY)
+            UserDefaultsManager.savedCode = nil
         }
     }
-
+    
     @IBAction func onClose(_ sender: UIBarButtonItem) {
         self.dismiss(animated: true, completion: nil)
     }
-
+    
     @IBAction func onVerify(_ sender: UIButton) {
         view.endEditing(true)
         self.activityIndicator.startAnimating()
@@ -108,7 +108,7 @@ class RedeemViewController: UIViewController {
             "name": self.userName!,
             "redeemCount": 0,
             "stampCount": 0,
-        ] as [String : Any]
+            ] as [String : Any]
         ownerRef.child("teams/\(FIRAuth.auth()!.currentUser!.uid)").setValue(data)
         if (self.photoURL != nil) {
             ownerRef.child("teams/\(FIRAuth.auth()!.currentUser!.uid)").child("photoURL").setValue(self.photoURL!)

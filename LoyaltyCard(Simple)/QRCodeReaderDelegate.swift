@@ -62,7 +62,8 @@ class QRCodeReaderDelegate: NSObject, QRCodeReaderViewControllerDelegate {
             // 2. Add stamp QR code scanned
             //if self.controller.verificationCodes.contains(where: result.value) {
             let resultVerification: VerificationCode = VerificationCode(code: result.value);
-            for verificationCode in self.controller.verificationCodes {
+            debugPrint("codes ", verificationCodeArray)
+            for verificationCode in verificationCodeArray {
                 if( verificationCode.code == resultVerification.code) {
                     print("Approved!")
                     print(verificationCode.stamps);

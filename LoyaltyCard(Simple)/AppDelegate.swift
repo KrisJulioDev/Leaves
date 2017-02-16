@@ -19,9 +19,10 @@ import Firebase
 import GoogleSignIn
 import FBSDKLoginKit
 import FirebaseDynamicLinks
+import UserNotifications
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
     
     var window: UIWindow?
     let customURLScheme = "7leaves"
@@ -59,12 +60,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         self.window = UIWindow(frame: UIScreen.main.bounds)
         self.window?.makeKeyAndVisible()
         
-        // Code to include navigation drawer
-        let mainViewController   = storyboard.instantiateViewController(withIdentifier: "homeVC")
-        let drawerViewController = storyboard.instantiateViewController(withIdentifier: "drawerVC")
-        let drawerController     = KYDrawerController(drawerDirection: .left, drawerWidth: (UIScreen.main.bounds.size.width) * 0.75)
-       
-        
         if !isSignedIn {
             do {
                 try FIRAuth.auth()?.signOut()
@@ -78,9 +73,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 success, error in
                 
                 if success == true {
-                    drawerController.mainViewController = mainViewController
-                    drawerController.drawerViewController = drawerViewController
-                    self.window?.rootViewController = drawerController
+                    //drawerController.mainViewController = mainViewController
+                    //drawerController.drawerViewController = drawerViewController
+                    //self.window?.rootViewController = drawerController
                 } else {
                     self.window?.rootViewController = loginVC
                     self.forceLogout()
@@ -91,10 +86,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         } else {
             self.window?.rootViewController = loginVC
         }
-
+        
+        
         self.window?.rootViewController = loginVC
         
-        // Facebook
+        // Override point for customization after application launch.
+        let center = UNUserNotificationCenter.current()
+        center.delegate = self
+        center.requestAuthorization(options: [.alert, .sound]) { (granted, error) in
+            // Enable or disable features based on authorization.
+        }
+        
         return FBSDKApplicationDelegate.sharedInstance().application(application, didFinishLaunchingWithOptions: launchOptions)
     }
     
@@ -160,6 +162,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([Any]?) -> Void) -> Bool {
+        
         guard let dynamicLinks = FIRDynamicLinks.dynamicLinks() else {
             return false
         }
@@ -172,6 +175,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     let code = shareCodeValue[1]
                     debugPrint("code is ", code)
                     UserDefaults.standard.setValue(code, forKey: SHARE_CODE_KEY)
+                    
+                    if let drawer = self.window?.rootViewController, drawer is KYDrawerController {
+                        let mainVC = (drawer as! KYDrawerController).mainViewController
+                        (mainVC as! ViewController).redeemSavedCode()
+                    }
                 }
             }
             
@@ -180,7 +188,31 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         return handled
     }
- 
+    
+    //MARK: Notifications
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        UserDefaults.standard.setValue(true, forKey: BIRTHDAY_FREE_STAMP_KEY)
+        self.handleNotification()
+    }
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        UserDefaults.standard.setValue(true, forKey: BIRTHDAY_FREE_STAMP_KEY)
+        self.handleNotification()
+    }
+    
+    func handleNotification() {
+        UserDefaults.standard.setValue(true, forKey: BIRTHDAY_FREE_STAMP_KEY)
+        if let topController = UIApplication.topViewController() {
+            Alert.show(controller: topController, title: "Greetings!", message: "Happy Birthday! You got free stamp.", action: {
+                
+                if let drawer = self.window?.rootViewController, drawer is KYDrawerController {
+                    let mainVC = (drawer as! KYDrawerController).mainViewController
+                    (mainVC as! ViewController).addFreeStampForBirthday()
+                }
+            })
+            
+        }
+    }
 }/*
  func handleEvent(forRegion region: CLRegion!) {
  if isUserValidForStamp() {
@@ -246,3 +278,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
  }
  }
  */
+
+extension UIApplication {
+    class func topViewController(controller: UIViewController? = UIApplication.shared.keyWindow?.rootViewController) -> UIViewController? {
+        if let navigationController = controller as? UINavigationController {
+            return topViewController(controller: navigationController.visibleViewController)
+        }
+        if let tabController = controller as? UITabBarController {
+            if let selected = tabController.selectedViewController {
+                return topViewController(controller: selected)
+            }
+        }
+        if let presented = controller?.presentedViewController {
+            return topViewController(controller: presented)
+        }
+        return controller
+    }
+}

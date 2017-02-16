@@ -12,7 +12,7 @@ import Alamofire
 import SwiftyJSON
 
 class ReferViewController: UIViewController {
-
+    
     var message:String!
     var appLink:NSURL!
     var deeplink:String?
@@ -39,7 +39,7 @@ class ReferViewController: UIViewController {
             self.requestForDeeplink()
         })
     }
-
+    
     func requestForDeeplink() {
         let postURL = "https://firebasedynamiclinks.googleapis.com/v1/shortLinks?key=AIzaSyAzvEyYL3f-KV72HhbsEcpm2Ex3gqyw_I8"
         let firebaseDomain  = "https://jf27z.app.goo.gl"
@@ -59,7 +59,7 @@ class ReferViewController: UIViewController {
                     debugPrint(self.deeplink ?? "")
                 }
             })
-
+        
     }
     
     @IBAction func onClose(_ sender: UIBarButtonItem) {

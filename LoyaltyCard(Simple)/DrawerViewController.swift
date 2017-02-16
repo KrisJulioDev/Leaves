@@ -13,6 +13,7 @@ import FBSDKLoginKit
 import KYDrawerController
 import MapKit
 import GoogleSignIn
+import UserNotifications
 
 class DrawerViewController: UIViewController {
     
@@ -31,7 +32,7 @@ class DrawerViewController: UIViewController {
         
         currentUserRef.observeSingleEvent(of: .value, with: { snapshot in
             if snapshot.value is NSNull { return }
-
+            
             let userData = snapshot.value as! Dictionary<String, AnyObject>
             self.userName.text = userData["name"] as! String!
             if let imageURL = userData["photoURL"], imageURL as? String != "" {
@@ -90,6 +91,11 @@ class DrawerViewController: UIViewController {
             UserDefaultsManager.saveDefaults(latteStamps: 0, redeemCount: 0)
         }
         do {
+            // remove notifications
+            let center = UNUserNotificationCenter.current()
+            center.removeAllDeliveredNotifications()
+            center.removeAllPendingNotificationRequests()
+            
             GIDSignIn.sharedInstance().signOut()
             
             let store = Twitter.sharedInstance().sessionStore

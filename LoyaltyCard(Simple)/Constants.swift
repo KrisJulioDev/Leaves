@@ -9,10 +9,12 @@
 import Foundation
 
 let SHARE_CODE_KEY = "share_code_key"
+let BIRTHDAY_EDITED_KEY = "birthday_edit"
+let BIRTHDAY_FREE_STAMP_KEY = "birthday_free_stamp"
+let VERIFICATION_CODES = "verification_code"
 
 var verificationCodeArray: [VerificationCode] = []
 
 
 // Clear 10 stamps
 var redeemQRCode: String = ""
-

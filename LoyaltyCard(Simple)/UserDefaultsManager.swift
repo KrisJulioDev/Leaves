@@ -11,6 +11,8 @@ import Foundation
 
 struct UserDefaultsManager {
     
+    static var savedCode:String?
+    
     //MARK: - NSUserDefaults functions
     
     static let kStampsNumber = "stampsNumber"

@@ -45,7 +45,7 @@
 			<string>com.JasonMcCoy.7LeavesCard</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>7leaves</string>
+				<string>leavescafe</string>
 			</array>
 		</dict>
 	</array>

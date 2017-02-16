@@ -14,7 +14,7 @@ import KYDrawerController
 import GoogleSignIn
 
 class SigninViewController: UIViewController, GIDSignInUIDelegate, GIDSignInDelegate {
-
+    
     var usersRef: FIRDatabaseReference!
     var currentUserRef: FIRDatabaseReference!
     
@@ -27,11 +27,13 @@ class SigninViewController: UIViewController, GIDSignInUIDelegate, GIDSignInDele
     @IBOutlet weak var superViewtoCenterDistance: NSLayoutConstraint!
     @IBOutlet weak var socialSignin: UIView!
     @IBOutlet weak var signinButton: UIButton!
-
+    
+    var authHandler: FIRAuthStateDidChangeListenerHandle?
+    var isPushed = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         usersRef = FIRDatabase.database().reference(withPath: "users")
         
         // Show view button on right view of password textfiled
@@ -47,18 +49,26 @@ class SigninViewController: UIViewController, GIDSignInUIDelegate, GIDSignInDele
         
         self.signinButton.layer.borderColor = UIColor.white.cgColor
         
-        FIRAuth.auth()?.addStateDidChangeListener { auth, user in
+        authHandler = FIRAuth.auth()?.addStateDidChangeListener { auth, user in
             if let user = user {
                 if user.isEmailVerified || (FBSDKAccessToken.current() != nil) || (Twitter.sharedInstance().sessionStore.session() != nil) || ( GIDSignIn.sharedInstance().currentUser != nil ) {
                     
-                    //Push User into firebase schema
-                    self.pushUsertoFirebase(user: user)
+                    if self.isPushed == false {
+                        self.isPushed = true
+                        //Push User into firebase schema
+                        self.pushUsertoFirebase(user: user)
+                        self.removeHandler()
+                    }
                 }
             }
         }
     }
     
-
+    func removeHandler() {
+        FIRAuth.auth()?.removeStateDidChangeListener(self.authHandler!)
+    }
+    
+    
     override func viewDidLayoutSubviews() {
         email.underlined(color: UIColor.white, width: 1.0)
         password.underlined(color: UIColor.white, width: 1.0)
@@ -78,7 +88,7 @@ class SigninViewController: UIViewController, GIDSignInUIDelegate, GIDSignInDele
                         "email": profile.email ?? "",
                         "photoURL": (profile.photoURL == nil ? "" : "\(profile.photoURL!)"),
                         "gender": "",
-                        "birthDay":0,
+                        "birthDay": "",
                         "referralCode": key.substring(to: index).uppercased(),
                         "stampCount" : 0,
                         "redeemCount": 0,
@@ -92,7 +102,7 @@ class SigninViewController: UIViewController, GIDSignInUIDelegate, GIDSignInDele
                         "email": profile.email ?? "",
                         "photoURL": (profile.photoURL == nil ? "" : "\(profile.photoURL!)"),
                         "gender": "",
-                        "birthDay":0,
+                        "birthDay": "",
                         "referralCode": key.substring(to: index).uppercased(),
                         "stampCount" : 0,
                         "redeemCount": 0,
@@ -106,7 +116,7 @@ class SigninViewController: UIViewController, GIDSignInUIDelegate, GIDSignInDele
                         "email": profile.email ?? "",
                         "photoURL": (profile.photoURL == nil ? "" : "\(profile.photoURL!)"),
                         "gender": "",
-                        "birthDay":0,
+                        "birthDay": "",
                         "referralCode": key.substring(to: index).uppercased(),
                         "stampCount" : 0,
                         "redeemCount": 0,
@@ -119,11 +129,11 @@ class SigninViewController: UIViewController, GIDSignInUIDelegate, GIDSignInDele
                         "email": user.email ?? "",
                         "photoURL": (user.photoURL == nil ? "" : "\(user.photoURL!)"),
                         "gender": "",
-                        "birthDay":0,
+                        "birthDay": "",
                         "referralCode": key.substring(to: index).uppercased(),
                         "stampCount" : 0,
                         "redeemCount": 0,
-                    ] as [String : Any]
+                        ] as [String : Any]
                     self.currentUserRef.setValue(currentUser)
                 }
             }
@@ -192,7 +202,7 @@ class SigninViewController: UIViewController, GIDSignInUIDelegate, GIDSignInDele
             }
         }
     }
-
+    
     @IBAction func onTwitterLogin(_ sender: UIButton) {
         self.activityIndicator.startAnimating()
         let twitterLoginManager = Twitter.sharedInstance()
@@ -307,28 +317,28 @@ class SigninViewController: UIViewController, GIDSignInUIDelegate, GIDSignInDele
     }
     
     /*
-    // MARK: - AutoLayout Keyboard
-    func keyboardWillShow(notification: NSNotification) {
-        let keyboardSize = (notification.userInfo![UIKeyboardFrameEndUserInfoKey] as! NSValue).cgRectValue
-        let duration = notification.userInfo![UIKeyboardAnimationDurationUserInfoKey] as! Double
-
-        self.superViewtoCenterDistance.constant = -keyboardSize.height/4
-        UIView.animate(withDuration: duration, animations: {
-            self.view.layoutIfNeeded()
-            self.socialSignin.alpha = 0
-        })
-    }
-    
-    func keyboardWillHide(notification: NSNotification) {
-        let duration = notification.userInfo![UIKeyboardAnimationDurationUserInfoKey] as! Double
-        
-        self.superViewtoCenterDistance.constant = 0
-        UIView.animate(withDuration: duration, animations: {
-            self.view.layoutIfNeeded()
-            self.socialSignin.alpha = 1
-        })
-    }
-    */
+     // MARK: - AutoLayout Keyboard
+     func keyboardWillShow(notification: NSNotification) {
+     let keyboardSize = (notification.userInfo![UIKeyboardFrameEndUserInfoKey] as! NSValue).cgRectValue
+     let duration = notification.userInfo![UIKeyboardAnimationDurationUserInfoKey] as! Double
+     
+     self.superViewtoCenterDistance.constant = -keyboardSize.height/4
+     UIView.animate(withDuration: duration, animations: {
+     self.view.layoutIfNeeded()
+     self.socialSignin.alpha = 0
+     })
+     }
+     
+     func keyboardWillHide(notification: NSNotification) {
+     let duration = notification.userInfo![UIKeyboardAnimationDurationUserInfoKey] as! Double
+     
+     self.superViewtoCenterDistance.constant = 0
+     UIView.animate(withDuration: duration, animations: {
+     self.view.layoutIfNeeded()
+     self.socialSignin.alpha = 1
+     })
+     }
+     */
     
     // Simple alerts with message and ok action
     func simpleAlert(message: String) {
@@ -371,7 +381,7 @@ extension SigninViewController {
         FIRAuth.auth()?.signIn(with: credential) { (user, error) in
             if let error = error {
                 self.simpleAlert(message: error.localizedDescription)
-            }  
+            }
         }
     }
 }

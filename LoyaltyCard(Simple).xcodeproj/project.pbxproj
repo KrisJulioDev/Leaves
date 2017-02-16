@@ -14,7 +14,6 @@
 		0211670D1E4700F3001AA682 /* Team.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0211670C1E4700F3001AA682 /* Team.swift */; };
 		021167111E471596001AA682 /* TeamMembersTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 021167101E471596001AA682 /* TeamMembersTableViewController.swift */; };
 		021167131E472801001AA682 /* EachTeamMemberTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 021167121E472801001AA682 /* EachTeamMemberTableViewCell.swift */; };
-		0243D0A61E3F97AB00DA7456 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0243D0A51E3F97AB00DA7456 /* GoogleService-Info.plist */; };
 		0243D0A81E3F996D00DA7456 /* SigninViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0243D0A71E3F996D00DA7456 /* SigninViewController.swift */; };
 		0243D0AA1E3F997400DA7456 /* SignupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0243D0A91E3F997400DA7456 /* SignupViewController.swift */; };
 		0243D0AC1E3FA78800DA7456 /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0243D0AB1E3FA78800DA7456 /* Helpers.swift */; };
@@ -22,6 +21,7 @@
 		0243D0B51E40C5A600DA7456 /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0243D0B41E40C5A600DA7456 /* Store.swift */; };
 		0243D0B71E40D2D200DA7456 /* TestLocations.gpx in Resources */ = {isa = PBXBuildFile; fileRef = 0243D0B61E40D2D200DA7456 /* TestLocations.gpx */; };
 		0243D0B91E40DECB00DA7456 /* RCValues.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0243D0B81E40DECB00DA7456 /* RCValues.swift */; };
+		133ED1121E549731000D2F53 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 133ED1111E549731000D2F53 /* GoogleService-Info.plist */; };
 		1379AB311E38C203001E866C /* Alert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1379AB301E38C203001E866C /* Alert.swift */; };
 		1379AB331E38C20B001E866C /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1379AB321E38C20B001E866C /* Constants.swift */; };
 		1379AB351E38C216001E866C /* UserDefaultsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1379AB341E38C216001E866C /* UserDefaultsManager.swift */; };
@@ -39,6 +39,7 @@
 		3557BA931E4D441B00D2C631 /* email_invalid.json in Resources */ = {isa = PBXBuildFile; fileRef = 3557BA921E4D441B00D2C631 /* email_invalid.json */; };
 		357B85351E4D745F0064C1EC /* NearestStoreViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 357B85341E4D745F0064C1EC /* NearestStoreViewController.swift */; };
 		357B85371E4D8A080064C1EC /* FeedbackViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 357B85361E4D8A080064C1EC /* FeedbackViewController.swift */; };
+		62544CAD1E554745008CA6A5 /* UserNotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62544CAC1E554745008CA6A5 /* UserNotificationManager.swift */; };
 		74C6D67D328661709E3B3D3F /* Pods_LoyaltyCard_Simple_.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D07EC56A444CF4B7C917DA /* Pods_LoyaltyCard_Simple_.framework */; };
 		D2BB3ABE1E56E6A4006DED63 /* UIButton+Animation.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2BB3ABD1E56E6A4006DED63 /* UIButton+Animation.swift */; };
 		D2BB3AC01E56E70C006DED63 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D2BB3ABF1E56E70C006DED63 /* Foundation.framework */; };
@@ -54,7 +55,6 @@
 		0211670C1E4700F3001AA682 /* Team.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Team.swift; sourceTree = "<group>"; };
 		021167101E471596001AA682 /* TeamMembersTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TeamMembersTableViewController.swift; sourceTree = "<group>"; };
 		021167121E472801001AA682 /* EachTeamMemberTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EachTeamMemberTableViewCell.swift; sourceTree = "<group>"; };
-		0243D0A51E3F97AB00DA7456 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		0243D0A71E3F996D00DA7456 /* SigninViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SigninViewController.swift; sourceTree = "<group>"; };
 		0243D0A91E3F997400DA7456 /* SignupViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignupViewController.swift; sourceTree = "<group>"; };
 		0243D0AB1E3FA78800DA7456 /* Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Helpers.swift; sourceTree = "<group>"; };
@@ -63,6 +63,7 @@
 		0243D0B41E40C5A600DA7456 /* Store.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Store.swift; sourceTree = "<group>"; };
 		0243D0B61E40D2D200DA7456 /* TestLocations.gpx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = TestLocations.gpx; sourceTree = "<group>"; };
 		0243D0B81E40DECB00DA7456 /* RCValues.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RCValues.swift; sourceTree = "<group>"; };
+		133ED1111E549731000D2F53 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		1379AB301E38C203001E866C /* Alert.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Alert.swift; sourceTree = "<group>"; };
 		1379AB321E38C20B001E866C /* Constants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		1379AB341E38C216001E866C /* UserDefaultsManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserDefaultsManager.swift; sourceTree = "<group>"; };
@@ -85,6 +86,7 @@
 		357B85341E4D745F0064C1EC /* NearestStoreViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NearestStoreViewController.swift; sourceTree = "<group>"; };
 		357B85361E4D8A080064C1EC /* FeedbackViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedbackViewController.swift; sourceTree = "<group>"; };
 		4D30BBC3F42C49994CC6E6C9 /* Pods-LoyaltyCard(Simple).debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LoyaltyCard(Simple).debug.xcconfig"; path = "Pods/Target Support Files/Pods-LoyaltyCard(Simple)/Pods-LoyaltyCard(Simple).debug.xcconfig"; sourceTree = "<group>"; };
+		62544CAC1E554745008CA6A5 /* UserNotificationManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserNotificationManager.swift; sourceTree = "<group>"; };
 		D2BB3ABD1E56E6A4006DED63 /* UIButton+Animation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIButton+Animation.swift"; sourceTree = "<group>"; };
 		D2BB3ABF1E56E70C006DED63 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		D2BB3AC11E56E71E006DED63 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -126,6 +128,7 @@
 			isa = PBXGroup;
 			children = (
 				1379AB341E38C216001E866C /* UserDefaultsManager.swift */,
+				62544CAC1E554745008CA6A5 /* UserNotificationManager.swift */,
 			);
 			name = UserDefaultManager;
 			sourceTree = "<group>";
@@ -188,8 +191,8 @@
 				1BE92E021CB1C121009284A0 /* Main.storyboard */,
 				1BE92E051CB1C121009284A0 /* Assets.xcassets */,
 				1BE92E071CB1C121009284A0 /* LaunchScreen.storyboard */,
+				133ED1111E549731000D2F53 /* GoogleService-Info.plist */,
 				1BE92E0A1CB1C121009284A0 /* Info.plist */,
-				0243D0A51E3F97AB00DA7456 /* GoogleService-Info.plist */,
 				0243D0AB1E3FA78800DA7456 /* Helpers.swift */,
 			);
 			path = "LoyaltyCard(Simple)";
@@ -301,7 +304,6 @@
 				TargetAttributes = {
 					1BE92DFA1CB1C121009284A0 = {
 						CreatedOnToolsVersion = 7.3;
-						DevelopmentTeam = KC6J7YD8JQ;
 						LastSwiftMigration = 0800;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
@@ -315,7 +317,7 @@
 								enabled = 0;
 							};
 							com.apple.SafariKeychain = {
-								enabled = 0;
+								enabled = 1;
 							};
 						};
 					};
@@ -346,11 +348,11 @@
 			files = (
 				1BE92E091CB1C121009284A0 /* LaunchScreen.storyboard in Resources */,
 				1BE92E061CB1C121009284A0 /* Assets.xcassets in Resources */,
-				0243D0A61E3F97AB00DA7456 /* GoogleService-Info.plist in Resources */,
 				1BE92E041CB1C121009284A0 /* Main.storyboard in Resources */,
 				0243D0B71E40D2D200DA7456 /* TestLocations.gpx in Resources */,
 				3557BA931E4D441B00D2C631 /* email_invalid.json in Resources */,
 				D2BB3AC41E56EB68006DED63 /* click2.mp3 in Resources */,
+				133ED1121E549731000D2F53 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -412,6 +414,7 @@
 				1379AB311E38C203001E866C /* Alert.swift in Sources */,
 				13DE760F1E3C304700B82490 /* VerificationCode.swift in Sources */,
 				0243D0A81E3F996D00DA7456 /* SigninViewController.swift in Sources */,
+				62544CAD1E554745008CA6A5 /* UserNotificationManager.swift in Sources */,
 				357B85371E4D8A080064C1EC /* FeedbackViewController.swift in Sources */,
 				0243D0B11E40BB9D00DA7456 /* Geotification.swift in Sources */,
 				13A07FC71E37B23A00C9A05C /* Utils.swift in Sources */,
@@ -554,9 +557,10 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "LoyaltyCard(Simple)/7Leaves Card.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Developer: gosulayaswanth2@gmail.com (V69LML2JQZ)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				DEVELOPMENT_TEAM = KC6J7YD8JQ;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = "LoyaltyCard(Simple)/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -574,9 +578,10 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "LoyaltyCard(Simple)/7Leaves Card.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				DEVELOPMENT_TEAM = KC6J7YD8JQ;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = "LoyaltyCard(Simple)/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";

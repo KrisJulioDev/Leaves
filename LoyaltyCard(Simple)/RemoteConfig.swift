@@ -23,6 +23,8 @@ class RemoteConfig: NSObject {
                 "update_10"]
     
     func initialize() {
+        self.getLocalCodes()
+        
         remoteConfig = FIRRemoteConfig.remoteConfig()
         let remoteConfigSettings = FIRRemoteConfigSettings(developerModeEnabled: true)
         remoteConfig?.configSettings = remoteConfigSettings!
@@ -43,12 +45,38 @@ class RemoteConfig: NSObject {
         }
     }
     
+    func getLocalCodes() {
+        
+        if UserDefaults.standard.value(forKey: VERIFICATION_CODES) != nil {
+            
+            let codes = UserDefaults.standard.value(forKey: VERIFICATION_CODES) as? [String]
+            
+            if codes != nil {
+                for (index, code) in codes!.enumerated() {
+                    verificationCodeArray.append(VerificationCode(code: code, stamps: index+1))
+                }
+            }
+            debugPrint(verificationCodeArray)
+        }
+    }
+    
     func saveVerificationCodes() {
+        var codes = [String]()
+        
+        if keys.count > 0 {
+            verificationCodeArray.removeAll()
+        }
+        
         for (index, key) in keys.enumerated() {
             if let stampCode = self.remoteConfig?[key].stringValue, stampCode != "" {
                 let vCode = VerificationCode(code: stampCode, stamps: index + 1)
                 verificationCodeArray.append(vCode)
+                codes.append(stampCode)
             }
+        }
+        
+        if codes.isEmpty == false {
+            UserDefaults.standard.setValue(codes, forKey: VERIFICATION_CODES)
         }
         
         debugPrint(verificationCodeArray)
